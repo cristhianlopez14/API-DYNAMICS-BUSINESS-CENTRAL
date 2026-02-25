@@ -1,0 +1,75 @@
+{
+  "id": "bbb24f1f-9700-42c8-80ad-a84c9ba13225",
+  "name": "ALProject6",
+  "publisher": "Default Publisher",
+  "version": "1.0.0.0",
+  "brief": "",
+  "description": "",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",
+  "dependencies": [
+    {
+      "id": "decdc030-82ca-47e4-b8ac-024cd011fc09",
+      "name": "D365LATAM Documento Soporte",
+      "version": "1.0.0.91",
+      "publisher": "D365LATAM"
+    },
+    {
+      "id": "b3780cd9-f8f8-4a83-a4d5-0c2ad87b28af",
+      "name": "Sustainability",
+      "version": "27.2.42879.42994",
+      "publisher": "Microsoft"
+    },
+    {
+      "id": "badb1d5c-5bff-4b76-9a66-2d6d2de4183b",
+      "name": "D365LATAM - Colombia Localization",
+      "version": "27.0.0.17",
+      "publisher": "D365LATAM"
+    },
+    {
+      "id": "e1d97edc-c239-46b4-8d84-6368bdf67c8b",
+      "name": "E-Document Core",
+      "version": "27.2.42879.43521",
+      "publisher": "Microsoft"
+    },
+    {
+      "id": "3099ffc7-4cf7-4df6-9b96-7e4bc2bb587c",
+      "name": "Subscription Billing",
+      "version": "27.2.42879.42994",
+      "publisher": "Microsoft"
+    },
+    {
+      "id": "0d619927-4649-4abc-9a60-a23fcd0e32ba",
+      "name": "D365LATAM RetecionesArt383",
+      "version": "1.0.0.12",
+      "publisher": "D365LATAM"
+    },
+    {
+      "id": "70912191-3c4c-49fc-a1de-bc6ea1ac9da6",
+      "name": "Intrastat Core",
+      "version": "27.2.42879.42994",
+      "publisher": "Microsoft"
+    }
+  ],
+  "screenshots": [],
+  "platform": "1.0.0.0",
+  "application": "27.0.0.0",
+  "idRanges": [
+    {
+      "from": 60100,
+      "to": 60149
+    }
+  ],
+  "resourceExposurePolicy": {
+    "allowDebugging": true,
+    "allowDownloadingSource": true,
+    "includeSourceInSymbolFile": true
+  },
+  "runtime": "16.0",
+  "features": [
+    "NoImplicitWith"
+  ]
+}
