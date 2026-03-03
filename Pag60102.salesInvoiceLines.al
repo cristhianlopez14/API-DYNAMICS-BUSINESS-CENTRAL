@@ -67,6 +67,10 @@ page 60104 "Sales Lines API"
                 {
                     Caption = 'Shortcut Dimension 1 Code';
                 }
+                field("taxGroupCode"; Rec."Tax Group Code")
+                {
+                    Caption = 'Tax Group Code';
+                }
             }
         }
     }
