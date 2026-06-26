@@ -86,6 +86,10 @@ page 60110 "Sales Orders API"
                 {
                     Caption = 'Quote No.';
                 }
+                field(opportunityNo; Rec."Opportunity No.")
+                {
+                    Caption = 'Opportunity No.';
+                }
             }
         }
     }

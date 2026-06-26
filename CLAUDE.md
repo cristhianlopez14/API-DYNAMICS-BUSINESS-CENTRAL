@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **BH - API** — Extensión de Business Central (AL) que expone páginas API OData para integración con sistemas externos. Enfocada en operaciones de ventas, compras y maestros, con localización colombiana (D365LATAM).
 
 - Publisher: Cristhian Lopez
-- Versión actual: 1.2.0.2
+- Versión actual: 1.2.0.5
 - BC Application: v27 (Dynamics 365 Business Central 2024 Wave 2)
 - Runtime AL: 16.0
 
@@ -39,6 +39,8 @@ El proyecto contiene únicamente **API Pages** (sin tablas ni codeunits propios)
 | Sales Orders         | 60110 | `/bh/bh/beta/salesOrders`         | Sales Header (Order) |
 | Customers            | 60111 | `/bh/bh/beta/customers`           | Customer             |
 | Salespersons         | 60112 | `/bh/bh/beta/salespersonPurchasers` | Salesperson/Purchaser |
+| Payment Journal Lines | 60113 | `/bh/bh/beta/paymentJournalLines` | Gen. Journal Line    |
+| Project Lines         | 60114 | `/bh/bh/beta/projectLines`        | Job Planning Line    |
 
 Todos usan: `APIPublisher = 'bh'`, `APIGroup = 'bh'`, `APIVersion = 'beta'`, `ODataKeyFields = SystemId`, `DelayedInsert = true`.
 
