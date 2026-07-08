@@ -763,16 +763,28 @@
         <tbody>
           <tr><td class="f-api">id<span class="badge-key">KEY</span><span class="badge-ro">R/O</span></td><td class="f-bc">SystemId</td><td class="f-type">GUID</td><td class="f-desc">Identificador único OData</td></tr>
           <tr><td class="f-api">number</td><td class="f-bc">No.</td><td class="f-type">Code[20]</td><td class="f-desc">Número de ítem</td></tr>
+          <tr><td class="f-api">displayName</td><td class="f-bc">Description</td><td class="f-type">Text[100]</td><td class="f-desc">Nombre visible (estándar)</td></tr>
           <tr><td class="f-api">description</td><td class="f-bc">Description</td><td class="f-type">Text[100]</td><td class="f-desc">Descripción principal</td></tr>
           <tr><td class="f-api">description2</td><td class="f-bc">Description 2</td><td class="f-type">Text[50]</td><td class="f-desc">Descripción complementaria</td></tr>
           <tr><td class="f-api">type</td><td class="f-bc">Type</td><td class="f-type">Option</td><td class="f-desc">Tipo (Inventory / Service / Non-Inventory)</td></tr>
+          <tr><td class="f-api">itemCategoryId<span class="badge-ro">R/O</span></td><td class="f-bc">Item Category.SystemId</td><td class="f-type">GUID</td><td class="f-desc">Id de la categoría del ítem</td></tr>
           <tr><td class="f-api">itemCategoryCode</td><td class="f-bc">Item Category Code</td><td class="f-type">Code[20]</td><td class="f-desc">Categoría del ítem</td></tr>
+          <tr><td class="f-api">blocked</td><td class="f-bc">Blocked</td><td class="f-type">Boolean</td><td class="f-desc">Ítem bloqueado</td></tr>
+          <tr><td class="f-api">gtin</td><td class="f-bc">GTIN</td><td class="f-type">Code[14]</td><td class="f-desc">Código GTIN/EAN</td></tr>
+          <tr><td class="f-api">inventory<span class="badge-ro">R/O</span></td><td class="f-bc">Inventory</td><td class="f-type">Decimal</td><td class="f-desc">Existencia en inventario (FlowField)</td></tr>
+          <tr><td class="f-api">unitPrice</td><td class="f-bc">Unit Price</td><td class="f-type">Decimal</td><td class="f-desc">Precio unitario</td></tr>
+          <tr><td class="f-api">priceIncludesTax</td><td class="f-bc">Price Includes VAT</td><td class="f-type">Boolean</td><td class="f-desc">El precio incluye impuesto</td></tr>
+          <tr><td class="f-api">unitCost</td><td class="f-bc">Unit Cost</td><td class="f-type">Decimal</td><td class="f-desc">Costo unitario</td></tr>
+          <tr><td class="f-api">taxGroupId<span class="badge-ro">R/O</span></td><td class="f-bc">Tax Group.SystemId</td><td class="f-type">GUID</td><td class="f-desc">Id del grupo de impuesto</td></tr>
           <tr><td class="f-api">taxGroupCode</td><td class="f-bc">Tax Group Code</td><td class="f-type">Code[20]</td><td class="f-desc">Grupo de impuesto</td></tr>
-          <tr><td class="f-api">baseUnitOfMeasure</td><td class="f-bc">Base Unit of Measure</td><td class="f-type">Code[10]</td><td class="f-desc">Unidad de medida base</td></tr>
-          <tr><td class="f-api">genProdPostingGroup</td><td class="f-bc">Gen. Prod. Posting Group</td><td class="f-type">Code[20]</td><td class="f-desc">Grupo contable de producto</td></tr>
-          <tr><td class="f-api">inventoryPostingGroup</td><td class="f-bc">Inventory Posting Group</td><td class="f-type">Code[20]</td><td class="f-desc">Grupo de inventario</td></tr>
+          <tr><td class="f-api">baseUnitOfMeasureId<span class="badge-ro">R/O</span></td><td class="f-bc">Unit of Measure.SystemId</td><td class="f-type">GUID</td><td class="f-desc">Id de la unidad de medida base</td></tr>
+          <tr><td class="f-api">baseUnitOfMeasureCode</td><td class="f-bc">Base Unit of Measure</td><td class="f-type">Code[10]</td><td class="f-desc">Unidad de medida base</td></tr>
+          <tr><td class="f-api">genProdPostingGroup</td><td class="f-bc">Gen. Prod. Posting Group</td><td class="f-type">Code[20]</td><td class="f-desc">Grupo contable de producto (Grupo Contable Prod Gen)</td></tr>
+          <tr><td class="f-api">inventoryPostingGroup</td><td class="f-bc">Inventory Posting Group</td><td class="f-type">Code[20]</td><td class="f-desc">Grupo de inventario (Grupo Registro Inventario)</td></tr>
+          <tr><td class="f-api">lastModifiedDateTime<span class="badge-ro">R/O</span></td><td class="f-bc">SystemModifiedAt</td><td class="f-type">DateTime</td><td class="f-desc">Última modificación</td></tr>
           <tr><td class="f-api">origen</td><td class="f-bc">D365LATAM Field 80702</td><td class="f-type">Text[100]</td><td class="f-desc">Origen Colombia (D365LATAM) — vía RecordRef</td></tr>
-          <tr><td class="f-api">codGrupoImpuesto</td><td class="f-bc">D365L CO Sales Tax Group Code</td><td class="f-type">Code[20]</td><td class="f-desc">Código grupo impuesto colombiano</td></tr>
+          <tr><td class="f-api">codGrupoImpuestoVenta</td><td class="f-bc">D365L CO Sales Tax Group Code</td><td class="f-type">Code[20]</td><td class="f-desc">Código grupo impuesto colombiano (venta)</td></tr>
+          <tr><td class="f-api">codGrupoImpuestoCompra<span class="badge-ro">R/O</span></td><td class="f-bc">— (pendiente)</td><td class="f-type">Code[20]</td><td class="f-desc">Placeholder vacío: no existe hoy un campo de grupo de impuesto de compra a nivel Item en D365LATAM instalado</td></tr>
         </tbody>
       </table>
     </div>

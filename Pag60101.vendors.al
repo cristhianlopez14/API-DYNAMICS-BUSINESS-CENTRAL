@@ -7,8 +7,8 @@ page 60103 Vendor
     APIGroup = 'bh';
     APIVersion = 'beta';
 
-    EntityName = 'proveedor';
-    EntitySetName = 'proveedores';
+    EntityName = 'vendor';
+    EntitySetName = 'vendors';
 
     Caption = 'Vendors API';
     ApplicationArea = All;
