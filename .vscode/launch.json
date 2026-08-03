@@ -6,20 +6,21 @@
             "request": "launch",
             "type": "al",
             "environmentType": "Sandbox",
-            "environmentName": "Sandbox1012-260527213124",
+            "environmentName": "SandboxBH",
             "startupObjectId": 22,
             "startupObjectType": "Page",
             "breakOnError": "All",
             "launchBrowser": true,
             "enableLongRunningSqlStatements": true,
-            "enableSqlInformationDebugger": true
+            "enableSqlInformationDebugger": true,
+            "schemaUpdateMode": "ForceSync"
         },
         {
             "name": "AL: Generated Download Symbols request",
             "request": "launch",
             "type": "al",
             "environmentType": "Sandbox",
-            "environmentName": "Sandbox1012-260527213124",
+            "environmentName": "SandboxBH",
             "tenant": "10657a47-53a7-4493-b90b-033cc0505242"
         },
         {
@@ -27,7 +28,7 @@
             "request": "snapshotInitialize",
             "type": "al",
             "environmentType": "Sandbox",
-            "environmentName": "Sandbox1012-260527213124",
+            "environmentName": "SandboxBH",
             "sessionId": 47647,
             "breakOnNext": "WebClient",
             "executionContext": "DebugAndProfile",
