@@ -45,6 +45,7 @@ El proyecto contiene principalmente **API Pages** sobre tablas estándar de BC. 
 | No. Series Lines       | 60116 | `/bh/bh/beta/noSeriesLines`       | No. Series Line      |
 | Purchase Invoice Lines | 60117 | `/bh/bh/beta/purchaseInvoiceLines` | Purchase Line (borrador, `Document Type = Invoice`) |
 | Budget Amounts         | 60118 | `/bh/bh/beta/budgetAmounts`        | G/L Budget Entry (agregado, ver abajo) + `BH Budget Amount Buffer` (tabla propia) |
+| Multiplicadores LP     | 60119 | `/bh/bh/beta/multiplicadoresLP`    | `LyL Multiplicadores_LP` (tabla 80707, extensión externa `LyLVariantsExt`) |
 
 Todos usan: `APIPublisher = 'bh'`, `APIGroup = 'bh'`, `APIVersion = 'beta'`, `ODataKeyFields = SystemId`. Todos son de lectura/escritura (`DelayedInsert = true`) excepto **Budget Amounts**, que es solo lectura (`InsertAllowed/ModifyAllowed/DeleteAllowed = false`).
 
@@ -55,6 +56,9 @@ Todos usan: `APIPublisher = 'bh'`, `APIGroup = 'bh'`, `APIVersion = 'beta'`, `OD
 
 **Campos dinámicos vía RecordRef/FieldRef** (ver [Pag60104.items.al](Pag60104.items.al)):  
 El campo `Origen` (field 80702 del módulo D365LATAM) no es accesible directamente; se lee/escribe con `RecordRef.FieldIndex` o `RecordRef.Field(80702)` para evitar dependencia de compilación en tiempo real.
+
+**Dependencia a extensión de terceros en Multiplicadores LP** (ver [Pag60119.multiplicadoresLP.al](Pag60119.multiplicadoresLP.al)):  
+`LyL Multiplicadores_LP` (tabla 80707) pertenece a la extensión externa `LyLVariantsExt` (publisher L&L Consultores, no Microsoft/D365LATAM), declarada como dependencia en `app.json`. A diferencia de los campos D365LATAM (que se acceden vía RecordRef por ser opcionales), aquí se referencia la tabla directamente por nombre porque es una dependencia obligatoria de la extensión. La tabla es real (no temporal) y ya trae `SystemId`, así que la página sigue el patrón simple de Vendors/Items: `SourceTable` directo, sin buffer ni lógica de inserción custom. El campo `SalesHeaderNo` (Pedido) es un `Code[20]` plano sin `TableRelation` a nivel de tabla.
 
 **WorkDescription en Sales Invoices** (ver [Pag60103.salesInvoices.al](Pag60103.salesInvoices.al)):  
 Usa `GetWorkDescription()` / `SetWorkDescription()` con una variable local `WorkDescriptionValue` en `OnAfterGetRecord` y `OnModifyRecord`.
@@ -87,9 +91,10 @@ Los campos con prefijo `"D365L CO"` provienen de la dependencia **D365LATAM - Co
 
 ## Dependencias (.alpackages)
 
-8 dependencias declaradas en `app.json`. Las más relevantes para este código:
+9 dependencias declaradas en `app.json`. Las más relevantes para este código:
 
 - `D365LATAM - Colombia Localization` — campos tributarios en Vendor e Item
 - `D365LATAM Documento Soporte` — soporte para documentos de compras
 - `D365LATAM RetecionesArt383` — retenciones colombianas
 - `Microsoft Base Application` — todas las tablas fuente (Vendor, Item, Sales Header, etc.)
+- `LyLVariantsExt` (publisher L&L Consultores) — tabla `LyL Multiplicadores_LP` (80707) usada en Multiplicadores LP API

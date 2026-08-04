@@ -59,6 +59,12 @@
       "name": "Intrastat Core",
       "version": "27.2.42879.42994",
       "publisher": "Microsoft"
+    },
+    {
+      "id": "82b819df-9a08-4cba-a31b-e08ef2612729",
+      "name": "LyLVariantsExt",
+      "version": "1.0.0.0",
+      "publisher": "L&L Consultores"
     }
   ],
   "screenshots": [],
