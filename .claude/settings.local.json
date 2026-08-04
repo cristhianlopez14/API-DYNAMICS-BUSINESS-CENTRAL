@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Cristhian López\\\\Documents\\\\AL\\\\API_BC_BH\" -Force)",
-      "Bash(Select-Object Name, PSIsContainer)"
+      "Bash(Select-Object Name, PSIsContainer)",
+      "WebSearch",
+      "Bash(mkdir -p \"/tmp/lylextract\")",
+      "Bash(powershell -Command \"Copy-Item './L&L Consultores_LyLVariantsExt_1.0.0.118.app' -Destination '/tmp/lyl.zip'\")",
+      "Bash(python3 -c ' *)"
     ]
   }
 }
