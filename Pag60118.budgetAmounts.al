@@ -35,6 +35,10 @@ page 60118 "Budget Amounts API"
                 {
                     Caption = 'Budget Name';
                 }
+                field(glAccountNo; Rec."G/L Account No.")
+                {
+                    Caption = 'G/L Account No.';
+                }
                 field(dimensionValueCode; Rec."Dimension Value Code")
                 {
                     Caption = 'Dimension Value Code';
@@ -70,19 +74,46 @@ page 60118 "Budget Amounts API"
     trigger OnOpenPage()
     var
         FilterView: Text;
+        AccountFilter: Text;
     begin
-        // Captura el filtro OData ($filter) que llega antes de que el buffer se llene,
-        // ya que Reset()/DeleteAll() en PopulateBuffer lo eliminarían.
+        // Captura el filtro OData completo (como antes) y, aparte, el filtro de glAccountNo:
+        // este último se consume ANTES de agregar (ver PopulateBuffer), ya que una fila puede
+        // representar la suma de varias cuentas (ej. startswith '5') y no puede reaplicarse
+        // después sobre el buffer ya agregado.
         FilterView := Rec.GetView(false);
+        AccountFilter := Rec.GetFilter("G/L Account No.");
 
-        PopulateBuffer();
+        // Si el consumidor no manda glAccountNo, se usa por defecto la lista de cuentas de
+        // presupuesto configurada para esta compañía (tabla "BH Budget GL Account"), en vez de
+        // sumar TODAS las cuentas contables. Esto evita mandar listas largas de cuentas por la
+        // URL (y el límite de nodos de OData) cuando el conjunto de cuentas es fijo por compañía.
+        if AccountFilter = '' then
+            AccountFilter := GetDefaultBudgetAccountFilter();
 
-        // Reaplica el filtro original sobre el buffer ya poblado.
+        PopulateBuffer(AccountFilter);
+
+        // Reaplica el filtro original completo (budgetName, dimensionValueCode, periodo, etc.)
+        // y luego limpia el de glAccountNo, que ya fue consumido al agregar.
         if FilterView <> '' then
             Rec.SetView(FilterView);
+        Rec.SetRange("G/L Account No.");
     end;
 
-    local procedure PopulateBuffer()
+    local procedure GetDefaultBudgetAccountFilter(): Text
+    var
+        BudgetGLAccount: Record "BH Budget GL Account";
+        AccountFilter: Text;
+    begin
+        if BudgetGLAccount.FindSet() then
+            repeat
+                if AccountFilter <> '' then
+                    AccountFilter += '|';
+                AccountFilter += BudgetGLAccount."G/L Account No.";
+            until BudgetGLAccount.Next() = 0;
+        exit(AccountFilter);
+    end;
+
+    local procedure PopulateBuffer(AccountFilter: Text)
     var
         GLBudgetEntry: Record "G/L Budget Entry";
         GLBudgetEntrySum: Record "G/L Budget Entry";
@@ -97,6 +128,9 @@ page 60118 "Budget Amounts API"
 
         GLSetup.Get();
 
+        if AccountFilter <> '' then
+            GLBudgetEntry.SetFilter("G/L Account No.", AccountFilter);
+
         if GLBudgetEntry.FindSet() then
             repeat
                 PeriodStart := CalcDate('<-CM>', GLBudgetEntry."Date");
@@ -107,15 +141,21 @@ page 60118 "Budget Amounts API"
                     GLBudgetEntrySum.SetRange("Budget Name", GLBudgetEntry."Budget Name");
                     GLBudgetEntrySum.SetRange("Global Dimension 1 Code", GLBudgetEntry."Global Dimension 1 Code");
                     GLBudgetEntrySum.SetRange("Date", PeriodStart, PeriodEnd);
+                    if AccountFilter <> '' then
+                        GLBudgetEntrySum.SetFilter("G/L Account No.", AccountFilter);
                     GLBudgetEntrySum.CalcSums(Amount);
 
                     GLEntry.Reset();
                     GLEntry.SetRange("Global Dimension 1 Code", GLBudgetEntry."Global Dimension 1 Code");
                     GLEntry.SetRange("Posting Date", PeriodStart, PeriodEnd);
+                    if AccountFilter <> '' then
+                        GLEntry.SetFilter("G/L Account No.", AccountFilter);
                     GLEntry.CalcSums(Amount);
 
                     Rec.Init();
                     Rec."Budget Name" := GLBudgetEntry."Budget Name";
+                    // Informativo: el filtro de cuenta aplicado a esta fila (puede cubrir varias cuentas).
+                    Rec."G/L Account No." := CopyStr(AccountFilter, 1, MaxStrLen(Rec."G/L Account No."));
                     Rec."Dimension Value Code" := GLBudgetEntry."Global Dimension 1 Code";
 
                     Rec."Dimension Value Name" := '';
@@ -132,9 +172,5 @@ page 60118 "Budget Amounts API"
                     Rec.Insert(false);
                 end;
             until GLBudgetEntry.Next() = 0;
-
-        // Nota: se removió el Rec.Reset() final que existía en el original.
-        // Ya no es necesario aquí y, de mantenerse, anularía el SetView()
-        // que se aplica después de regresar de este procedimiento.
     end;
 }

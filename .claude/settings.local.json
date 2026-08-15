@@ -6,7 +6,17 @@
       "WebSearch",
       "Bash(mkdir -p \"/tmp/lylextract\")",
       "Bash(powershell -Command \"Copy-Item './L&L Consultores_LyLVariantsExt_1.0.0.118.app' -Destination '/tmp/lyl.zip'\")",
-      "Bash(python3 -c ' *)"
+      "Bash(python3 -c ' *)",
+      "Bash(python -m pip install python-docx --quiet)",
+      "Bash(python -c \"import docx; print\\('OK', docx.__file__\\)\")",
+      "Bash(find \"$HOME/.vscode\" \"$HOME/AppData/Local/Microsoft/AL Language Extension\" \"$HOME/AppData/Local/.alcache\" \"$HOME/.alcache\" -iname \"*JobPlanningLine*\" -o -iname \"*Job Planning Line*\" 2>/dev/null | head -50)",
+      "Read(//c/Users/Cristhian López/.vscode/**)",
+      "Bash(find \"$HOME/AppData\" -iname \"*.dal\" 2>/dev/null | head -5 *)",
+      "Read(//c/Users/Cristhian López/AppData/**)",
+      "Read(//c//**)",
+      "Read(//c/Users/Cristhian López/AppData/Local/Temp/**)",
+      "Read(//c/Users/Cristhian López/**)",
+      "Bash(python3 -)"
     ]
   }
 }

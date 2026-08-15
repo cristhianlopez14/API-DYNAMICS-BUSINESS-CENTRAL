@@ -45,6 +45,11 @@ table 60118 "BH Budget Amount Buffer"
             Caption = 'Remaining Amount';
             DataClassification = CustomerContent;
         }
+        field(9; "G/L Account No."; Code[20])
+        {
+            Caption = 'G/L Account No.';
+            DataClassification = CustomerContent;
+        }
     }
 
     keys

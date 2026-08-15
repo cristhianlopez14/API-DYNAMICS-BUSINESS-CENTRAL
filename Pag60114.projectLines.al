@@ -132,20 +132,7 @@ page 60114 "Project Lines API"
         // Insert con triggers de tabla (OnInsert recalcula desde tarjeta recurso → pone todo a 0)
         Rec.Insert(true);
 
-        // MODIFY sin triggers: escribe los valores que envió el usuario
-        // por encima de lo que calculó el OnInsert de la tabla
-        if UnitCostBuffer <> 0 then begin
-            Rec."Unit Cost" := UnitCostBuffer;
-            Rec."Unit Cost (LCY)" := UnitCostBuffer;
-            Rec."Total Cost" := UnitCostBuffer * Rec.Quantity;
-        end;
-        if UnitPriceBuffer <> 0 then begin
-            Rec."Unit Price" := UnitPriceBuffer;
-            Rec."Unit Price (LCY)" := UnitPriceBuffer;
-            Rec."Total Price" := UnitPriceBuffer * Rec.Quantity;
-        end;
-        if (UnitCostBuffer <> 0) or (UnitPriceBuffer <> 0) then
-            Rec.Modify();   // sin triggers → BC no vuelve a releer el recurso
+        ApplyCostAndPrice();
 
         // false = nosotros ya hicimos el Insert; BC no lo repite
         exit(false);
@@ -153,18 +140,42 @@ page 60114 "Project Lines API"
 
     trigger OnModifyRecord(): Boolean
     begin
-        if UnitCostBuffer <> Rec."Unit Cost" then begin
+        ApplyCostAndPrice();
+        exit(false);  // nosotros ya hicimos el Modify
+    end;
+
+    local procedure ApplyCostAndPrice()
+    begin
+        // Validate (no solo asignación directa) es lo que recalcula correctamente Total Cost/Total
+        // Cost (LCY), Total Price/Total Price (LCY) y Line Amount/Line Amount (LCY) -los campos
+        // "(LCY)" son los que alimentan el rollup de la Job Task, y solo se actualizan dentro del
+        // UpdateAllAmounts() que corre el OnValidate estándar de Unit Cost/Unit Price-.
+        if UnitCostBuffer <> 0 then
+            Rec.Validate("Unit Cost", UnitCostBuffer);
+        if UnitPriceBuffer <> 0 then
+            Rec.Validate("Unit Price", UnitPriceBuffer);
+
+        // Reafirmación final: el orden exacto en que BC aplica type/no./quantity antes de este
+        // trigger puede volver a derivar costo/precio desde el recurso -por eso, sin importar
+        // qué haya hecho el Validate() por dentro, se fuerzan aquí los valores definitivos
+        // (asume moneda base: LCY = FCY, consistente con currencyCode en blanco en este API).
+        if UnitCostBuffer <> 0 then begin
             Rec."Unit Cost" := UnitCostBuffer;
             Rec."Unit Cost (LCY)" := UnitCostBuffer;
             Rec."Total Cost" := UnitCostBuffer * Rec.Quantity;
+            Rec."Total Cost (LCY)" := UnitCostBuffer * Rec.Quantity;
         end;
-        if UnitPriceBuffer <> Rec."Unit Price" then begin
+        if UnitPriceBuffer <> 0 then begin
             Rec."Unit Price" := UnitPriceBuffer;
             Rec."Unit Price (LCY)" := UnitPriceBuffer;
             Rec."Total Price" := UnitPriceBuffer * Rec.Quantity;
+            Rec."Total Price (LCY)" := UnitPriceBuffer * Rec.Quantity;
+            Rec."Line Amount" := Rec."Total Price" - Rec."Line Discount Amount";
+            Rec."Line Amount (LCY)" := Rec."Line Amount";
         end;
-        Rec.Modify();
-        exit(false);  // nosotros ya hicimos el Modify
+
+        if (UnitCostBuffer <> 0) or (UnitPriceBuffer <> 0) then
+            Rec.Modify();   // sin triggers de tabla → BC no vuelve a releer el recurso
     end;
 
     var
