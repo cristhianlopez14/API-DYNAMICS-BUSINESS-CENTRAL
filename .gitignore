@@ -1,0 +1,11 @@
+# AL / Business Central build artifacts
+# Compiled packages should not land in the repo root — see /releases for tracked release builds.
+*.app
+!/releases/*.app
+
+# Symbol cache for dependencies (regenerate with "AL: Download Symbols")
+.alpackages/
+
+# Snapshot debugger session state and rapid application development state
+.snapshots/
+.vscode/rad.json
