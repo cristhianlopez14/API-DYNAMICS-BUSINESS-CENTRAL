@@ -248,6 +248,73 @@ codeunit 60123 "BH Sales Job Planning Mgt."
         JobPlanningLine.Delete(true);
     end;
 
+    // --- Ruta A (sección 4.3/5.2b del diseño) — enganche real al posteo combinado ---
+    // El Pedido de venta nunca cambia "Document Type" durante "Enviado y Facturado" en un
+    // paso (permanece en Order de principio a fin), pero Codeunit 80 "Sales-Post" exige, vía
+    // TestField, que "Job Contract Entry No." sea 0 en todo documento que no sea Invoice/Credit
+    // Memo. Los dos subscribers siguientes interceptan el posteo, únicamente para líneas
+    // marcadas "BH Auto-Created From Sales", para resolver ese choque sin tocar el objeto base.
+
+    // Firma verificada contra el fuente decompilado de Codeunit 80 "Sales-Post"
+    // (.alpackages/Microsoft_Base Application_27.5.46862.52525.app,
+    // src/Sales/Posting/SalesPost.Codeunit.al, línea ~11393).
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", OnPostJobContractLineBeforeTestFields, '', false, false)]
+    local procedure AllowOrderPostingForJobContractLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        if SalesHeader."Document Type" <> SalesHeader."Document Type"::Order then
+            exit; // ya es Invoice/Credit Memo: flujo nativo de Microsoft, no tocar
+
+        if SalesLine."Job Contract Entry No." = 0 then
+            exit;
+
+        JobPlanningLine.SetCurrentKey("Job Contract Entry No.");
+        JobPlanningLine.SetRange("Job Contract Entry No.", SalesLine."Job Contract Entry No.");
+        if not JobPlanningLine.FindFirst() then
+            exit;
+        if not JobPlanningLine."BH Auto-Created From Sales" then
+            exit; // no es una línea de este desarrollo, no intervenir
+
+        if not SalesHeader.Invoice then begin
+            // Ship-only en esta corrida (fuera del alcance real de negocio, pero no debe fallar,
+            // ver CA9): no se factura todavía, se salta el TestField y el PrepareJobLine de esta
+            // corrida sin error; el vínculo queda pendiente para cuando sí se facture.
+            IsHandled := true;
+            exit;
+        end;
+
+        // Mutación LOCAL, contenida al stack frame de PostJobContractLine (verificado: ningún
+        // parámetro es "var" en la cadena de llamadas hasta este punto) -- no persiste en BD, no
+        // afecta el resto del posteo (envío, numeración, G/L). A partir de aquí,
+        // PostJobContractLine hace el resto solo: salta el TestField, asigna
+        // SalesLine."Document No." := SalesInvHeader."No.", y llama
+        // InvoicePostingInterface.PrepareJobLine(...).
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
+    end;
+
+    // Firma verificada contra el fuente decompilado de Codeunit 80 "Sales-Post"
+    // (mismo paquete, procedimiento PostItemJnlLine, línea ~10805).
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", OnPostItemJnlLineOnBeforeIsJobContactLineCheck, '', false, false)]
+    local procedure RestoreItemPostingForJobContractLine(var ItemJnlLine: Record "Item Journal Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var ShouldPostItemJnlLine: Boolean; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; QtyToBeShipped: Decimal)
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        if SalesLine."Job Contract Entry No." = 0 then
+            exit;
+
+        JobPlanningLine.SetCurrentKey("Job Contract Entry No.");
+        JobPlanningLine.SetRange("Job Contract Entry No.", SalesLine."Job Contract Entry No.");
+        if not JobPlanningLine.FindFirst() then
+            exit;
+        if not JobPlanningLine."BH Auto-Created From Sales" then
+            exit; // línea de Job Contract genuina (Job Create-Invoice estándar): dejar el
+                  // comportamiento nativo de Microsoft (Item Ledger Entry suprimido, ya se
+                  // descontó vía Job Journal Usage)
+
+        ShouldPostItemJnlLine := true; // restaura el posteo normal de inventario/COGS para esta línea
+    end;
+
     var
         OrphanedJobPlanningLineTelemetryTxt: Label 'Se borró una Sales Line vinculada a la Job Planning Line %1/%2/%3 (BH Auto-Created From Sales), pero ya tenía facturación asociada -- no se eliminó, requiere revisión manual.', Comment = '%1 = Job No., %2 = Job Task No., %3 = Line No.';
 }
