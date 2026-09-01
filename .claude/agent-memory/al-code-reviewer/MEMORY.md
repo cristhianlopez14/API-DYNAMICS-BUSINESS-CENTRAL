@@ -1,2 +1,0 @@
-- [Jobs<->Sales integration (DIS-2026-08-31)](project_jobs_sales_integration.md) — Ruta A posting hook; both bugs + all advertencias verified FIXED 2026-09-01 (re-decompiled + real alc.exe compile). Approved.
-- [Verify decompiled-source claims](feedback_verify_design_claims_against_decompiled_source.md) — always re-check IsHandled scope / FlowField filters in cited BC base-app code directly, don't trust the comment's summary.

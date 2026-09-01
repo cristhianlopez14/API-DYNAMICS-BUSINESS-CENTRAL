@@ -9,3 +9,9 @@
 # Snapshot debugger session state and rapid application development state
 .snapshots/
 .vscode/rad.json
+
+# Agentes de desarrollo (definiciones y memoria): viven solo en
+# https://github.com/cristhianlopez14/AGENTES-DESARROLLO-BC, no en este repo
+.claude/agents/
+.claude/agent-memory/
+.claude/agentes-desarrollo-bc/

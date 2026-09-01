@@ -1,4 +1,0 @@
-- [Patrón: Job Planning Line facturable oculta](pattern_hidden_billable_job_planning_line.md) — generar Job Ledger Entry desde Sales Line sin romper WIP; Sales Line ya trae campos 45/1001/1002 de fábrica.
-- [Feedback: verificar precedentes narrados antes de bloquear el diseño](feedback_verify_narrated_precedents.md) — un codeunit "precedente" citado de memoria puede no existir en código real; investigar activamente.
-- [Hallazgo: Job Contract Entry No. exclusivo de Invoice/Credit Memo](finding_job_contract_entry_no_exclusive_to_invoice_documents.md) — nunca resolverlo al teclear en un Pedido; enganchar en el posteo (OnPostJobContractLineBeforeTestFields); ojo con supresión de Item Ledger Entry.
-- [Hallazgo: guard nativo bloquea edición de Sales Line con Job Contract Entry No.](finding_sales_line_edit_guard_on_job_contract_entry.md) — 11 campos bloqueados (Qty/Price/Location/Variant/UOM/etc.); bypass selectivo vía OnBeforeTestJobPlanningLine.
