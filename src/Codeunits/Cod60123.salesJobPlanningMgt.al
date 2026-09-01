@@ -16,6 +16,15 @@ codeunit 60123 "BH Sales Job Planning Mgt."
         SyncJobPlanningLineLink(Rec);
     end;
 
+    // También se escucha 'Job No.' (caso de limpieza: el usuario borra el proyecto empezando
+    // por este campo, con "Job Task No." ya diligenciado o vacío) — mismo procedimiento
+    // compartido que el subscriber de 'Job Task No.', ver sección 5.2 del diseño.
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", OnAfterValidateEvent, 'Job No.', false, false)]
+    local procedure SyncJobPlanningLineOnAfterValidateJobNo(var Rec: Record "Sales Line")
+    begin
+        SyncJobPlanningLineLink(Rec);
+    end;
+
     local procedure SyncJobPlanningLineLink(var SalesLine: Record "Sales Line")
     begin
         if SalesLine.Type <> SalesLine.Type::Item then
@@ -23,13 +32,48 @@ codeunit 60123 "BH Sales Job Planning Mgt."
         if not (SalesLine."Document Type" in [SalesLine."Document Type"::Order, SalesLine."Document Type"::Invoice]) then
             exit;
 
-        if (SalesLine."Job No." = '') or (SalesLine."Job Task No." = '') then
+        if (SalesLine."Job No." = '') or (SalesLine."Job Task No." = '') then begin
+            // Caso de limpieza: el usuario borró Job No. o Job Task No. -- si había un vínculo
+            // propio de este desarrollo, se elimina la Job Planning Line oculta.
+            RemoveAutoCreatedJobPlanningLine(SalesLine);
             exit;
+        end;
 
         if SalesLine."Job Contract Entry No." <> 0 then
             exit; // ya hay un vínculo -- propio previo, o genuino del asistente estándar de Proyectos
 
         CreateJobPlanningLineFromSalesLine(SalesLine);
+    end;
+
+    local procedure RemoveAutoCreatedJobPlanningLine(var SalesLine: Record "Sales Line")
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        JobPlanningLineInvoice: Record "Job Planning Line Invoice";
+    begin
+        if SalesLine."Job Contract Entry No." = 0 then
+            exit;
+
+        JobPlanningLine.SetCurrentKey("Job Contract Entry No.");
+        JobPlanningLine.SetRange("Job Contract Entry No.", SalesLine."Job Contract Entry No.");
+        if not JobPlanningLine.FindFirst() then
+            exit;
+        if not JobPlanningLine."BH Auto-Created From Sales" then
+            exit; // línea de Job Contract genuina (asistente estándar de Proyectos) -- no tocar
+
+        JobPlanningLineInvoice.SetRange("Job No.", JobPlanningLine."Job No.");
+        JobPlanningLineInvoice.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
+        JobPlanningLineInvoice.SetRange("Job Planning Line No.", JobPlanningLine."Line No.");
+        JobPlanningLineInvoice.DeleteAll();
+
+        JobPlanningLine.Delete(true);
+
+        // Limpieza vía asignación directa, NO Validate(): verificado contra el uso real de
+        // Microsoft (Codeunit "Copy Document Mgt." decompilado, ClearSalesLineValues y
+        // CopySalesDocLine) -- Sales Line."Job Contract Entry No." siempre se limpia con ":= 0"
+        // directo. El OnValidate del campo 1002 no tiene guarda para el valor 0 (hace
+        // FindFirst() sin condicionar), así que Validate(..., 0) fallaría o adjuntaría
+        // dimensiones de una Job Planning Line ajena con Job Contract Entry No. = 0.
+        SalesLine."Job Contract Entry No." := 0;
     end;
 
     local procedure CreateJobPlanningLineFromSalesLine(var SalesLine: Record "Sales Line")
@@ -101,4 +145,109 @@ codeunit 60123 "BH Sales Job Planning Mgt."
 
         SalesLine.Validate("Job Contract Entry No.", JobPlanningLine."Job Contract Entry No.");
     end;
+
+    // --- Sincronización de cantidad/costo/precio (sección 5.2) ---
+    // Si la línea de venta ya está vinculada a una Job Planning Line propia, replica el cambio
+    // sobre esa línea de planificación para que quede alineada mientras el documento sigue
+    // siendo un borrador (Pedido o Factura no contabilizados).
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", OnAfterValidateEvent, 'Quantity', false, false)]
+    local procedure SyncQuantityOnAfterValidate(var Rec: Record "Sales Line")
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        if not FindLinkedAutoCreatedJobPlanningLine(Rec, JobPlanningLine) then
+            exit;
+
+        JobPlanningLine.Validate(Quantity, Rec.Quantity);
+        JobPlanningLine.UpdateQtyToTransfer();
+        JobPlanningLine.Modify();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", OnAfterValidateEvent, 'Unit Price', false, false)]
+    local procedure SyncUnitPriceOnAfterValidate(var Rec: Record "Sales Line")
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        if not FindLinkedAutoCreatedJobPlanningLine(Rec, JobPlanningLine) then
+            exit;
+
+        JobPlanningLine.Validate("Unit Price", Rec."Unit Price");
+        JobPlanningLine.UpdateQtyToTransfer();
+        JobPlanningLine.Modify();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", OnAfterValidateEvent, 'Unit Cost', false, false)]
+    local procedure SyncUnitCostOnAfterValidate(var Rec: Record "Sales Line")
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        if not FindLinkedAutoCreatedJobPlanningLine(Rec, JobPlanningLine) then
+            exit;
+
+        JobPlanningLine.Validate("Unit Cost", Rec."Unit Cost");
+        JobPlanningLine.UpdateQtyToTransfer();
+        JobPlanningLine.Modify();
+    end;
+
+    local procedure FindLinkedAutoCreatedJobPlanningLine(SalesLine: Record "Sales Line"; var JobPlanningLine: Record "Job Planning Line"): Boolean
+    begin
+        if SalesLine."Job Contract Entry No." = 0 then
+            exit(false);
+
+        JobPlanningLine.SetCurrentKey("Job Contract Entry No.");
+        JobPlanningLine.SetRange("Job Contract Entry No.", SalesLine."Job Contract Entry No.");
+        if not JobPlanningLine.FindFirst() then
+            exit(false);
+
+        exit(JobPlanningLine."BH Auto-Created From Sales");
+    end;
+
+    // --- Limpieza al borrar la línea de venta (sección 5.2) ---
+    // Si la línea borrada tenía una Job Planning Line propia vinculada y esa línea de
+    // planificación no ha sido facturada todavía, se elimina también (junto con su
+    // Job Planning Line Invoice borrador) para no dejarla huérfana en la ficha del Proyecto.
+    // Si ya fue facturada (caso raro: se borra la línea de Pedido después de una facturación
+    // parcial), se deja intacta para revisión manual y se deja rastro en el log de telemetría.
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", OnAfterDeleteEvent, '', false, false)]
+    local procedure CleanupOnAfterDeleteSalesLine(var Rec: Record "Sales Line"; RunTrigger: Boolean)
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        JobPlanningLineInvoice: Record "Job Planning Line Invoice";
+    begin
+        if Rec."Job Contract Entry No." = 0 then
+            exit;
+
+        JobPlanningLine.SetCurrentKey("Job Contract Entry No.");
+        JobPlanningLine.SetRange("Job Contract Entry No.", Rec."Job Contract Entry No.");
+        if not JobPlanningLine.FindFirst() then
+            exit;
+        if not JobPlanningLine."BH Auto-Created From Sales" then
+            exit; // línea de Job Contract genuina -- no tocar
+
+        JobPlanningLine.CalcFields("Qty. Transferred to Invoice");
+
+        JobPlanningLineInvoice.SetRange("Job No.", JobPlanningLine."Job No.");
+        JobPlanningLineInvoice.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
+        JobPlanningLineInvoice.SetRange("Job Planning Line No.", JobPlanningLine."Line No.");
+        JobPlanningLineInvoice.SetFilter("Document Type", '%1|%2',
+            JobPlanningLineInvoice."Document Type"::"Posted Invoice",
+            JobPlanningLineInvoice."Document Type"::"Posted Credit Memo");
+
+        if (JobPlanningLine."Qty. Transferred to Invoice" <> 0) or not JobPlanningLineInvoice.IsEmpty() then begin
+            Session.LogMessage('BH-JOBS-0001', StrSubstNo(OrphanedJobPlanningLineTelemetryTxt, JobPlanningLine."Job No.",
+                JobPlanningLine."Job Task No.", JobPlanningLine."Line No."), Verbosity::Warning,
+                DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'BH Jobs Sales Integration');
+            exit;
+        end;
+
+        JobPlanningLineInvoice.SetRange("Document Type"); // se reutiliza la variable: ahora sin filtro, para borrar todos los borradores propios
+        JobPlanningLineInvoice.DeleteAll();
+
+        JobPlanningLine.Delete(true);
+    end;
+
+    var
+        OrphanedJobPlanningLineTelemetryTxt: Label 'Se borró una Sales Line vinculada a la Job Planning Line %1/%2/%3 (BH Auto-Created From Sales), pero ya tenía facturación asociada -- no se eliminó, requiere revisión manual.', Comment = '%1 = Job No., %2 = Job Task No., %3 = Line No.';
 }
