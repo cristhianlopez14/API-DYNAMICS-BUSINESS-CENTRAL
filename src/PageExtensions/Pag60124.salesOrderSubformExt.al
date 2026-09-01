@@ -14,14 +14,18 @@ pageextension 60124 "BH Sales Order Subform Ext" extends "Sales Order Subform"
                 ApplicationArea = All;
                 Caption = 'Job No.';
                 Editable = true;
-                ToolTip = 'Specifies the number of the related project. Solo aplica a líneas Tipo = Artículo.';
+                // Solo aplica a líneas Tipo = Artículo (ver SyncJobPlanningLineLink en
+                // Cod60123.salesJobPlanningMgt.al).
+                ToolTip = 'Specifies the number of the related project.';
             }
             field("Job Task No."; Rec."Job Task No.")
             {
                 ApplicationArea = All;
                 Caption = 'Job Task No.';
                 Editable = true;
-                ToolTip = 'Specifies the number of the related project task. Solo aplica a líneas Tipo = Artículo.';
+                // Solo aplica a líneas Tipo = Artículo (ver SyncJobPlanningLineLink en
+                // Cod60123.salesJobPlanningMgt.al).
+                ToolTip = 'Specifies the number of the related project task.';
             }
         }
     }
