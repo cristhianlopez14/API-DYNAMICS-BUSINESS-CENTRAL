@@ -138,8 +138,11 @@ codeunit 60123 "BH Sales Job Planning Mgt."
         JobPlanningLineInvoice."Document Type" := JobPlanningLineInvoice."Document Type"::Invoice;
         JobPlanningLineInvoice.Insert();
 
-        // Re-sincronización final de seguridad (mismo patrón "belt-and-suspenders" que usa
-        // Microsoft en Codeunit 1303 antes del Insert() de la línea de planificación).
+        // Re-sincronización final (mismo patrón que usa Microsoft en Codeunit 1303 antes del
+        // Insert() de la línea de planificación): NO es una red de seguridad para el borrador de
+        // factura -- "Qty. to Transfer to Invoice" ya quedó grabado correctamente por el Validate
+        // de Quantity de arriba (Line Type ya se validó antes). Es solo para mantener consistente
+        // la propia Job Planning Line de cara a reportes/consultas sobre ese campo.
         JobPlanningLine.UpdateQtyToTransfer();
         JobPlanningLine.Modify();
 
@@ -190,6 +193,52 @@ codeunit 60123 "BH Sales Job Planning Mgt."
         JobPlanningLine.Modify();
     end;
 
+    // Advertencia #3 (review 2026-09-01): Job Post-Line.ValidateRelationship compara Location
+    // Code/Variant Code/Unit of Measure Code (entre otros) entre Sales Line y Job Planning Line
+    // al postear, y falla con FieldError genérico si difieren. Mismo patrón que
+    // Quantity/Unit Price/Unit Cost arriba: si el vendedor cambia estos campos en la línea de
+    // venta después de asignar el proyecto, se replica el cambio sobre la Job Planning Line
+    // oculta enlazada para que no se desalineen mientras el documento sigue siendo borrador.
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", OnAfterValidateEvent, 'Location Code', false, false)]
+    local procedure SyncLocationCodeOnAfterValidate(var Rec: Record "Sales Line")
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        if not FindLinkedAutoCreatedJobPlanningLine(Rec, JobPlanningLine) then
+            exit;
+
+        JobPlanningLine.Validate("Location Code", Rec."Location Code");
+        JobPlanningLine.UpdateQtyToTransfer();
+        JobPlanningLine.Modify();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", OnAfterValidateEvent, 'Variant Code', false, false)]
+    local procedure SyncVariantCodeOnAfterValidate(var Rec: Record "Sales Line")
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        if not FindLinkedAutoCreatedJobPlanningLine(Rec, JobPlanningLine) then
+            exit;
+
+        JobPlanningLine.Validate("Variant Code", Rec."Variant Code");
+        JobPlanningLine.UpdateQtyToTransfer();
+        JobPlanningLine.Modify();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", OnAfterValidateEvent, 'Unit of Measure Code', false, false)]
+    local procedure SyncUnitOfMeasureCodeOnAfterValidate(var Rec: Record "Sales Line")
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        if not FindLinkedAutoCreatedJobPlanningLine(Rec, JobPlanningLine) then
+            exit;
+
+        JobPlanningLine.Validate("Unit of Measure Code", Rec."Unit of Measure Code");
+        JobPlanningLine.UpdateQtyToTransfer();
+        JobPlanningLine.Modify();
+    end;
+
     local procedure FindLinkedAutoCreatedJobPlanningLine(SalesLine: Record "Sales Line"; var JobPlanningLine: Record "Job Planning Line"): Boolean
     begin
         if SalesLine."Job Contract Entry No." = 0 then
@@ -226,8 +275,6 @@ codeunit 60123 "BH Sales Job Planning Mgt."
         if not JobPlanningLine."BH Auto-Created From Sales" then
             exit; // línea de Job Contract genuina -- no tocar
 
-        JobPlanningLine.CalcFields("Qty. Transferred to Invoice");
-
         JobPlanningLineInvoice.SetRange("Job No.", JobPlanningLine."Job No.");
         JobPlanningLineInvoice.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
         JobPlanningLineInvoice.SetRange("Job Planning Line No.", JobPlanningLine."Line No.");
@@ -235,7 +282,13 @@ codeunit 60123 "BH Sales Job Planning Mgt."
             JobPlanningLineInvoice."Document Type"::"Posted Invoice",
             JobPlanningLineInvoice."Document Type"::"Posted Credit Memo");
 
-        if (JobPlanningLine."Qty. Transferred to Invoice" <> 0) or not JobPlanningLineInvoice.IsEmpty() then begin
+        // Bug crítico #2 (review 2026-09-01): "Qty. Transferred to Invoice" (FlowField 1080 de
+        // Job Planning Line) se llena en cuanto se crea el BORRADOR de Job Planning Line Invoice
+        // (InitFromJobPlanningLine/InitFromSales, ver CreateJobPlanningLineFromSalesLine más
+        // arriba), no cuando se postea -- así que la condición "<> 0" era siempre verdadera desde
+        // la creación y esta rama de borrado real nunca se alcanzaba (código muerto). La
+        // comprobación correcta es solo el filtro a Posted Invoice/Posted Credit Memo de abajo.
+        if not JobPlanningLineInvoice.IsEmpty() then begin
             Session.LogMessage('BH-JOBS-0001', StrSubstNo(OrphanedJobPlanningLineTelemetryTxt, JobPlanningLine."Job No.",
                 JobPlanningLine."Job Task No.", JobPlanningLine."Line No."), Verbosity::Warning,
                 DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'BH Jobs Sales Integration');
@@ -254,6 +307,51 @@ codeunit 60123 "BH Sales Job Planning Mgt."
     // TestField, que "Job Contract Entry No." sea 0 en todo documento que no sea Invoice/Credit
     // Memo. Los dos subscribers siguientes interceptan el posteo, únicamente para líneas
     // marcadas "BH Auto-Created From Sales", para resolver ese choque sin tocar el objeto base.
+
+    // Corrección Bug crítico #1 (review 2026-09-01): el guard Ship-only vivía en
+    // OnPostJobContractLineBeforeTestFields con IsHandled := true, pero ese IsHandled sólo salta
+    // los 3 TestField siguientes dentro de PostJobContractLine -- NO la llamada a
+    // InvoicePostingInterface.PrepareJobLine(...) que viene después en el mismo procedimiento,
+    // fuera del bloque "if not IsHandled" (verificado contra .alpackages decompilado,
+    // src/Sales/Posting/SalesPost.Codeunit.al, línea ~5721-5747). Eso dejaba pasar
+    // PrepareJobLine -> Job Post-Line.PostInvoiceContractLine con SalesHeader."Document Type"
+    // todavía en Order (sin mutar, porque el caso Ship-only no llega al bloque de mutación de
+    // abajo), cuyo case interno no matchea nada pero de todas formas genera un Job Ledger Entry
+    // tipo Sale sin factura real -- fantasma que se duplicaría si luego se factura esa misma línea.
+    //
+    // El único evento que envuelve TODO PostJobContractLine (incluido PrepareJobLine) es
+    // OnBeforePostJobContractLine, que dispara ANTES del "if not IsHandled" (línea ~5723) que
+    // engloba tanto los TestField como PrepareJobLine. Negocio confirmó que Ship-only está fuera
+    // de alcance real, así que en vez de silenciarlo se bloquea todo el posteo con un Error()
+    // explícito -- un Error() dentro de un event subscriber aborta el codeunit publicador
+    // completo (y por tanto todo el posteo del documento, con rollback).
+    // Firma verificada contra el fuente decompilado de Codeunit 80 "Sales-Post"
+    // (.alpackages/Microsoft_Base Application_27.5.46862.52525.app,
+    // src/Sales/Posting/SalesPost.Codeunit.al, línea ~9385).
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", OnBeforePostJobContractLine, '', false, false)]
+    local procedure BlockShipOnlyPostingForJobContractLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var IsHandled: Boolean; var JobContractLine: Boolean; var InvoicePostingInterface: Interface "Invoice Posting"; SalesLineACY: Record "Sales Line"; SalesInvHeader: Record "Sales Invoice Header"; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        if SalesHeader."Document Type" <> SalesHeader."Document Type"::Order then
+            exit; // ya es Invoice/Credit Memo: flujo nativo de Microsoft, no tocar
+
+        if SalesLine."Job Contract Entry No." = 0 then
+            exit;
+
+        JobPlanningLine.SetCurrentKey("Job Contract Entry No.");
+        JobPlanningLine.SetRange("Job Contract Entry No.", SalesLine."Job Contract Entry No.");
+        if not JobPlanningLine.FindFirst() then
+            exit;
+        if not JobPlanningLine."BH Auto-Created From Sales" then
+            exit; // no es una línea de este desarrollo, no intervenir
+
+        if not SalesHeader.Invoice then
+            // Ship-only en esta corrida: confirmado por negocio como fuera de alcance real. Se
+            // bloquea todo el posteo con un mensaje claro en vez de dejar pasar un Job Ledger
+            // Entry fantasma sin factura real.
+            Error(ShipOnlyNotSupportedErr, SalesLine."Job No.", SalesLine."Job Task No.");
+    end;
 
     // Firma verificada contra el fuente decompilado de Codeunit 80 "Sales-Post"
     // (.alpackages/Microsoft_Base Application_27.5.46862.52525.app,
@@ -276,13 +374,9 @@ codeunit 60123 "BH Sales Job Planning Mgt."
         if not JobPlanningLine."BH Auto-Created From Sales" then
             exit; // no es una línea de este desarrollo, no intervenir
 
-        if not SalesHeader.Invoice then begin
-            // Ship-only en esta corrida (fuera del alcance real de negocio, pero no debe fallar,
-            // ver CA9): no se factura todavía, se salta el TestField y el PrepareJobLine de esta
-            // corrida sin error; el vínculo queda pendiente para cuando sí se facture.
-            IsHandled := true;
-            exit;
-        end;
+        // El caso Ship-only ya fue bloqueado con Error() en OnBeforePostJobContractLine (arriba),
+        // que dispara antes que este evento -- si el flujo llegó hasta aquí, SalesHeader.Invoice
+        // es necesariamente true.
 
         // Mutación LOCAL, contenida al stack frame de PostJobContractLine (verificado: ningún
         // parámetro es "var" en la cadena de llamadas hasta este punto) -- no persiste en BD, no
@@ -316,5 +410,6 @@ codeunit 60123 "BH Sales Job Planning Mgt."
     end;
 
     var
-        OrphanedJobPlanningLineTelemetryTxt: Label 'Se borró una Sales Line vinculada a la Job Planning Line %1/%2/%3 (BH Auto-Created From Sales), pero ya tenía facturación asociada -- no se eliminó, requiere revisión manual.', Comment = '%1 = Job No., %2 = Job Task No., %3 = Line No.';
+        OrphanedJobPlanningLineTelemetryTxt: Label 'Se borró una Sales Line vinculada a la Job Planning Line %1/%2/%3 (BH Auto-Created From Sales), pero ya tenía facturación asociada -- no se eliminó, requiere revisión manual.', Comment = '%1 = Job No., %2 = Job Task No., %3 = Line No.', Locked = true;
+        ShipOnlyNotSupportedErr: Label 'No se puede contabilizar solo Enviar (Ship) en un pedido con línea vinculada al proyecto %1, tarea %2. Debe contabilizar Enviar y Facturar, o solo Facturar, para esta línea.', Comment = '%1 = Job No., %2 = Job Task No.';
 }
