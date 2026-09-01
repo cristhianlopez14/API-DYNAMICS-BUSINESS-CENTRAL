@@ -1,0 +1,12 @@
+---
+name: feedback-verify-design-claims-against-decompiled-source
+description: When a design doc or code comment cites decompiled BC base-app behavior (event gating, IsHandled scope, FlowField filters), re-verify it directly instead of trusting the citation
+metadata:
+  type: feedback
+---
+
+This team (bc-implementer + design docs under `docs/diseños/`) is diligent about citing decompiled Microsoft source (`.alpackages/Microsoft_Base Application_*.app`, extractable as a zip — `src/**/*.Table.al`, `*.Codeunit.al` inside) to justify risky event-subscriber patterns. The citations are usually *mostly* right but can be subtly wrong about the exact **scope of an `IsHandled` gate** inside a multi-branch Microsoft procedure — e.g. assuming `IsHandled := true` on an inner event skips everything after it, when in the real source it only guards a few lines and execution falls through to the rest of the procedure unconditionally.
+
+**Why:** Found in DIS-2026-08-31 (Jobs<->Sales integration, [[project-jobs-sales-integration]]) — the design and `Cod60123`'s own comment both claimed `OnPostJobContractLineBeforeTestFields`'s `IsHandled := true` "salta el TestField y el PrepareJobLine" for Ship-only postings. Reading the actual decompiled `Codeunit 80 "Sales-Post"` line by line showed `IsHandled` only wraps the `TestField` calls — `InvoicePostingInterface.PrepareJobLine(...)` runs regardless, silently creating a phantom Job Ledger Entry for a Ship-only posting. Same investigation also found a FlowField (`Job Planning Line."Qty. Transferred to Invoice"`) assumed to only be non-zero *after posting*, but its `CalcFormula` has no `Document Type` filter, so it's non-zero as soon as the draft record is created — making a cleanup guard dead code.
+
+**How to apply:** When reviewing AL code in this repo that hooks Microsoft base-app events (especially `Codeunit "Sales-Post"`, `Codeunit "Job Post-Line"`, or anything posting-related), don't accept "verified against decompiled source" comments at face value — extract the actual `.al` file from the relevant `.alpackages/Microsoft_Base Application_*.app` (it's a zip; `python3 -c "import zipfile; ..."` works) and read the exact procedure referenced, paying special attention to: (1) which statements are actually inside an `if not IsHandled then begin...end` block vs. unconditional code after it, and (2) whether a FlowField's `CalcFormula` has the filter the comment assumes it has.

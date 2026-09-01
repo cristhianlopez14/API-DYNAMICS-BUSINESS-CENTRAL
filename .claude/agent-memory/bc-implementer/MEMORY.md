@@ -1,0 +1,4 @@
+- [DIS-2026-08-31 resuelto e implementado](project_dis-2026-08-31-jobs-sales-blocked.md) — bloqueo por TestField en Codeunit 80 resuelto con Ruta A (mutación local Document Type); implementado 2026-09-01, ver correcciones de orden Validate() encontradas en la construcción
+- [Decompilar Base Application](reference_al-decompile-base-app.md) — cómo extraer .al fuente real de los .app en .alpackages (python zipfile) para verificar premisas de diseño contra BC real
+- [Compilador AL CLI (alc.exe)](reference_al-compiler-cli-location.md) — cómo compilar este proyecto desde bash sin publicar a un sandbox BC, usando el alc.exe embebido en la extensión de VS Code
+- [Permission set: tipos de objeto válidos](reference_al-permissionset-object-types.md) — tableextension/pageextension NO son válidos en `Permissions`, solo tabledata/table/page/codeunit/report/query/xmlport/system/entitlement
