@@ -18,7 +18,7 @@ page 60104 "Sales Lines API"
 
     ODataKeyFields = SystemId;
 
-    
+
 
     layout
     {

@@ -41,7 +41,7 @@ APIVersion   = beta
 | Project Lines | `/projectLines` | Job Planning Line | |
 | Budget Amounts | `/budgetAmounts` | G/L Budget Entry (agregado) | Solo lectura |
 | Multiplicadores LP | `/multiplicadoresLP` | `LyL Multiplicadores_LP` | Requiere extensión externa `LyLVariantsExt` |
-| Origenes LP | `/origenesLP` | `LyL OrigenLP` | Requiere extensión externa `LyLVariantsExt` |
+| Origenes LP | `/origenesLP` | `LyL OrigenLP` | Requiere extensión externa `LyLVariantsExt`. Expone `totalFob`, calculado al vuelo por documento de venta — ver [docs/tecnica/DOC-2026-09-03-origenes-lp.md](docs/tecnica/DOC-2026-09-03-origenes-lp.md) |
 
 Todos son de lectura/escritura excepto **Budget Amounts**, que es solo lectura.
 
@@ -157,3 +157,11 @@ Los objetos usan el rango de IDs **60100–60149**. Ver [CLAUDE.md](CLAUDE.md) p
 ## Localización Colombia (D365LATAM)
 
 Varios endpoints (Vendors, Productos) exponen campos con prefijo `D365L CO` provenientes de la dependencia **D365LATAM - Colombia Localization**: tipo de contribuyente DIAN, responsabilidad tributaria, grupos de impuesto, etc.
+
+## Documentación
+
+Documentación técnica detallada por entrega, en `docs/tecnica/` (Markdown) con su equivalente en PDF en `docs/pdf/`:
+
+| Fecha | Documento | Tema |
+|---|---|---|
+| 2026-09-03 | [DOC-2026-09-03-origenes-lp](docs/tecnica/DOC-2026-09-03-origenes-lp.md) ([PDF](docs/pdf/DOC-2026-09-03-origenes-lp.pdf)) | Origenes LP API (60120): campo calculado `totalFob` |

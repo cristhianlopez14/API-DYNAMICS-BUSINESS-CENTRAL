@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>DOC-2026-09-03-origenes-lp</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+  :root {
+    --crema: #F9EDDC;
+    --verde: #152D0C;
+    --arena: #C4956A;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: 'Space Grotesk', 'Segoe UI', Arial, sans-serif;
+    color: #2b2b2b;
+    margin: 0;
+    font-size: 11.5pt;
+    line-height: 1.5;
+  }
+
+  @page {
+    size: A4;
+    margin: 2.2cm 1.8cm 2.4cm 1.8cm;
+    @bottom-center {
+      content: "Página " counter(page) " de " counter(pages);
+      font-family: 'Space Grotesk', Arial, sans-serif;
+      font-size: 9pt;
+      color: var(--verde);
+    }
+  }
+
+  .portada {
+    background: var(--crema);
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 4cm 2.5cm;
+    page-break-after: always;
+  }
+
+  .portada .marca {
+    color: var(--arena);
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    font-size: 11pt;
+    font-weight: 600;
+    margin-bottom: 1.2cm;
+  }
+
+  .portada h1 {
+    color: var(--verde);
+    font-size: 30pt;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0 0 0.6cm 0;
+    max-width: 14cm;
+  }
+
+  .portada .subtitulo {
+    color: #4a4a4a;
+    font-size: 13pt;
+    margin-bottom: 2.2cm;
+    max-width: 13cm;
+  }
+
+  .portada .meta {
+    border-top: 2px solid var(--arena);
+    padding-top: 0.6cm;
+    font-size: 10.5pt;
+    color: var(--verde);
+  }
+
+  .portada .meta div { margin-bottom: 0.15cm; }
+  .portada .meta strong { color: var(--verde); }
+
+  .portada .pie-marca {
+    position: absolute;
+    bottom: 2.5cm;
+    left: 2.5cm;
+    color: var(--verde);
+    font-weight: 600;
+    font-size: 11pt;
+  }
+
+  .contenido {
+    padding: 0 0.2cm;
+  }
+
+  h1, h2, h3 {
+    color: var(--verde);
+    font-weight: 700;
+  }
+
+  h1 { font-size: 18pt; border-bottom: 2px solid var(--arena); padding-bottom: 0.2cm; margin-top: 0.6cm;}
+  h2 { font-size: 14pt; margin-top: 1cm; border-left: 4px solid var(--arena); padding-left: 0.3cm; }
+  h3 { font-size: 12pt; margin-top: 0.7cm; color: var(--verde); }
+
+  p { margin: 0.4cm 0; }
+
+  code {
+    background: #f2ead9;
+    color: #5a3d1f;
+    padding: 0.05cm 0.15cm;
+    border-radius: 3px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 10pt;
+  }
+
+  pre {
+    background: #1e2a17;
+    color: #f2ead9;
+    padding: 0.4cm;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 9.5pt;
+    font-family: 'Consolas', 'Courier New', monospace;
+    page-break-inside: avoid;
+  }
+
+  pre code { background: none; color: inherit; padding: 0; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.4cm 0 0.6cm 0;
+    font-size: 10pt;
+    page-break-inside: avoid;
+  }
+
+  th {
+    background: var(--verde);
+    color: var(--crema);
+    text-align: left;
+    padding: 0.22cm 0.3cm;
+  }
+
+  td {
+    padding: 0.2cm 0.3cm;
+    border-bottom: 1px solid #e3d6bd;
+    vertical-align: top;
+  }
+
+  tr:nth-child(even) td { background: #fbf5ea; }
+
+  blockquote {
+    border-left: 4px solid var(--arena);
+    margin: 0.4cm 0;
+    padding: 0.2cm 0.5cm;
+    background: #fbf5ea;
+    color: #4a4a4a;
+    font-size: 10.5pt;
+  }
+
+  a { color: var(--arena); }
+
+  .seccion { page-break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<div class="portada">
+  <div class="marca">Bodhitrí &mdash; Área de TI</div>
+  <h1>Origenes LP API<br>&mdash; cálculo de Total Fob</h1>
+  <div class="subtitulo">Documentación técnica del endpoint <code>/bh/bh/beta/origenesLP</code> (extensión BH - API)</div>
+  <div class="meta">
+    <div><strong>Versión:</strong> 1.0</div>
+    <div><strong>Fecha:</strong> 2026-09-03</div>
+    <div><strong>Documento:</strong> DOC-2026-09-03-origenes-lp</div>
+  </div>
+</div>
+
+<div class="contenido">
+
+<h1>Origenes LP API — cálculo de Total Fob</h1>
+
+<h2>Resumen ejecutivo</h2>
+<p>Este endpoint expone la tabla <code>LyL OrigenLP</code> (80708), propiedad de la extensión externa <strong>LyLVariantsExt</strong> (publisher L&amp;L Consultores), que agrupa las líneas de un documento de venta por "origen" de compra del ítem (por ejemplo <code>INTERFACE USA</code>, <code>INTERFACE CH</code>, <code>INTERFACE KOR</code>, <code>SERVICIOS</code>). Lo usan las empresas del grupo que operan con LyLVariantsExt para el costeo FOB de sus cotizaciones/pedidos/facturas de venta con ítems importados.</p>
+<p>El cambio documentado aquí agrega el campo calculado <strong>totalFob</strong>: el monto Total Fob agrupado por origen para el documento de venta consultado. Este monto no existe como campo persistido en <code>LyL OrigenLP</code> — se calcula al vuelo en cada lectura, replicando la lógica del reporte nativo de LyLVariantsExt "Reporte Costos - Multiplicadores y Origen" (<code>Report 80701 "LyLOrigenesRep"</code>).</p>
+<p>También se corrige una imprecisión de documentación (no de código): el campo <code>Item."LyL OrigenLP"</code> (80702), que ya se usaba en el endpoint Productos (<code>Pag60106.items.al</code>), estaba catalogado en <code>CLAUDE.md</code> como campo de la localización D365LATAM. Es en realidad un campo de <strong>LyLVariantsExt</strong> (<code>tableextension "LyL ItemExt"</code>). Se corrigió en <code>CLAUDE.md</code>; no hay cambio de comportamiento.</p>
+
+<h2>Objetos AL</h2>
+<table>
+<tr><th>Tipo</th><th>ID</th><th>Nombre</th><th>Propósito</th></tr>
+<tr><td>Page (API)</td><td>60120</td><td>Origenes LP API</td><td>Endpoint OData de solo consulta agregada por origen, con <code>totalFob</code> calculado. Objeto ya existente; esta entrega solo agrega el campo <code>totalFob</code> y su lógica.</td></tr>
+</table>
+<p>No se crean ni modifican tablas, tableextensions ni codeunits en este cambio — toda la lógica vive en un <code>local procedure</code> de la propia página.</p>
+
+<p><strong>Dependencias externas involucradas (sin modificar):</strong></p>
+<table>
+<tr><th>Tabla / Campo</th><th>Extensión</th><th>Uso en el cálculo</th></tr>
+<tr><td><code>LyL OrigenLP</code> (80708)</td><td>LyLVariantsExt</td><td><code>SourceTable</code> de la página. <code>Nombre</code> es la clave de agrupación; <code>SalesHeaderNo</code> identifica el documento.</td></tr>
+<tr><td><code>Item."LyL OrigenLP"</code> (field 80702, <code>tableextension "LyL ItemExt"</code>)</td><td>LyLVariantsExt</td><td>Clasifica cada ítem bajo un origen. Se lee vía <code>RecordRef.Field(80702)</code> (campo dinámico, igual patrón que <code>Pag60106.items.al</code>).</td></tr>
+<tr><td><code>Sales Line."LyLSalesPriceCal"</code> (field 80701, <code>tableextension "LyLSalesLineExt"</code>)</td><td>LyLVariantsExt</td><td>FOB unitario ya resuelto (válido tanto para ítems modo "Calculado" como "Fijo"). Se lee vía <code>RecordRef.Field(80701)</code>.</td></tr>
+<tr><td><code>Item."LyL calculoLP"</code> (field 80703)</td><td>LyLVariantsExt</td><td>Referenciado solo en el comentario de diseño (no se lee en código): explica por qué no hace falta distinguir "Calculado" de "Fijo" al tomar <code>LyLSalesPriceCal</code>.</td></tr>
+</table>
+
+<h2>Endpoint de API</h2>
+<ul>
+<li><strong>Entidad:</strong> <code>origenLP</code></li>
+<li><strong>EntitySetName:</strong> <code>origenesLP</code></li>
+<li><strong>Versión:</strong> <code>bh/bh/beta</code></li>
+<li><strong>Fuente:</strong> <code>LyL OrigenLP</code> (tabla 80708, solo lectura efectiva de agregación — la tabla en sí admite lectura/escritura, <code>DelayedInsert = true</code>)</li>
+<li><strong>Clave OData:</strong> <code>SystemId</code></li>
+</ul>
+
+<h3>Campos expuestos</h3>
+<table>
+<tr><th>Campo OData</th><th>Origen</th><th>Tipo</th><th>Notas</th></tr>
+<tr><td><code>id</code></td><td><code>SystemId</code></td><td>Guid</td><td>Solo lectura</td></tr>
+<tr><td><code>number</code></td><td><code>ID</code></td><td>Integer</td><td>Solo lectura</td></tr>
+<tr><td><code>name</code></td><td><code>Nombre</code></td><td>Text</td><td>Clave de agrupación por origen (ej. INTERFACE USA)</td></tr>
+<tr><td><code>logisticFactor</code></td><td><code>FactorLogistico</code></td><td>Decimal</td><td></td></tr>
+<tr><td><code>originRegion</code></td><td><code>RegionOrigen</code></td><td>Code</td><td><code>TableRelation</code> a <code>"LyL RegionesLP".Codigo</code></td></tr>
+<tr><td><code>currencyCode</code></td><td><code>Moneda</code></td><td>Code</td><td><code>TableRelation</code> a <code>Currency.Code</code></td></tr>
+<tr><td><code>orderNo</code></td><td><code>SalesHeaderNo</code></td><td>Code[20]</td><td>No. de documento de venta (Cotización/Pedido/Factura), sin <code>TableRelation</code></td></tr>
+<tr><td><code>orderLineNo</code></td><td><code>SalesLineNo</code></td><td>Integer</td><td></td></tr>
+<tr><td><code>itemNo</code></td><td><code>ItemNo</code></td><td>Code</td><td></td></tr>
+<tr><td><code>versionNo</code></td><td><code>VersionNo</code></td><td>Integer</td><td></td></tr>
+<tr><td><code>margin</code></td><td><code>Margen</code></td><td>Decimal</td><td></td></tr>
+<tr><td><strong><code>totalFob</code></strong></td><td><strong>calculado</strong></td><td><strong>Decimal</strong></td><td><strong>Nuevo.</strong> Solo lectura (<code>Editable = false</code>). Total Fob agrupado para <code>name</code> dentro del documento <code>orderNo</code>. No persiste en la tabla base.</td></tr>
+</table>
+
+<h3>Lógica de cálculo de totalFob</h3>
+<p>Implementada en <code>local procedure GetTotalFob()</code>, invocada desde <code>trigger OnAfterGetRecord()</code>:</p>
+<ol>
+<li>Si <code>Rec.Nombre</code> está vacío, <code>totalFob = 0</code> (no hay agrupador que resolver).</li>
+<li>Busca líneas de venta Tipo Artículo (<code>Sales Line.Type = Item</code>) con <code>"Document No." = Rec.SalesHeaderNo</code>, probando en orden <strong>Cotización → Pedido → Factura</strong> (<code>Sales Document Type</code> Quote, Order, Invoice) y quedándose con el <strong>primer tipo de documento que tenga líneas</strong> — no se suman los tres tipos entre sí. Esto es porque representan la misma venta en distintas etapas de su ciclo de vida: al convertir Cotización a Pedido, las líneas de Cotización se eliminan, así que nunca coexisten con datos para el mismo No. de documento.</li>
+<li>Para cada línea encontrada, resuelve <code>Item."LyL OrigenLP"</code> (campo 80702) vía <code>RecordRef</code>/<code>FieldRef</code> y compara contra <code>Rec.Nombre</code>.</li>
+<li>Si coincide, suma <code>Sales Line."LyLSalesPriceCal" (80701) × Sales Line.Quantity</code> al acumulador.</li>
+<li>El resultado es <code>totalFob</code>.</li>
+</ol>
+
+<p><strong>Por qué no se cruza contra <code>LyL ItemVariant</code>/<code>LyL ItemVariantDetails</code>:</strong> <code>LyLSalesPriceCal</code> ya trae el FOB unitario resuelto para ambos modos de costeo del ítem (<code>Item."LyL calculoLP"</code> = "Calculado" o "Fijo"). Para ítems "Calculado", ese campo replica <code>LyL ItemVariant.PrecioFOB</code>; para ítems "Fijo" (sin fila en <code>LyL ItemVariant</code>), es la única fuente real de costo disponible. Cruzar contra esas tablas sería redundante y rompería el cálculo para los ítems en modo "Fijo".</p>
+
+<p><strong>Validación:</strong> contra datos reales de producción (2026-09-02), cotización C03980 — orígenes INTERFACE CH, INTERFACE KOR, INTERFACE USA (con y sin ítems "Fijo") y SERVICIOS — comparado exacto contra el "Reporte Costos - Multiplicadores y Origen" nativo de LyLVariantsExt (<code>Report 80701 "LyLOrigenesRep"</code>).</p>
+
+<h3>Ejemplo de request/response OData</h3>
+<pre><code>GET /bh/bh/beta/companies(&lt;companyId&gt;)/origenesLP?$filter=orderNo eq 'C03980'</code></pre>
+<pre><code>{
+  "value": [
+    {
+      "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "number": 12,
+      "name": "INTERFACE USA",
+      "logisticFactor": 1.15,
+      "originRegion": "USA",
+      "currencyCode": "USD",
+      "orderNo": "C03980",
+      "orderLineNo": 10000,
+      "itemNo": "",
+      "versionNo": 1,
+      "margin": 0.25,
+      "totalFob": 4820.50
+    }
+  ]
+}</code></pre>
+
+<blockquote>Nota: <code>totalFob</code> se recalcula en cada lectura (<code>OnAfterGetRecord</code>); no se puede filtrar ni ordenar por él vía OData <code>$filter</code>/<code>$orderby</code> porque no es un campo persistido de la fuente.</blockquote>
+
+<h2>Permisos requeridos</h2>
+<p>No hay cambios de permisos en esta entrega. El endpoint sigue requiriendo:</p>
+<ul>
+<li>Acceso de lectura a <code>LyL OrigenLP</code>, <code>Item</code>, <code>Sales Line</code> (cubierto por los permission sets estándar de LyLVariantsExt/BC ya asignados al usuario/aplicación integradora).</li>
+<li>No aplica el permission set propio <code>Per60100 "BH API - Objects"</code> — ese cubre únicamente tablas propias de esta extensión (<code>BH Budget Amount Buffer</code>, <code>BH Budget GL Account</code>), y <code>LyL OrigenLP</code> no es una tabla propia de BH - API.</li>
+</ul>
+
+<h2>Instrucciones de uso / despliegue</h2>
+<ol>
+<li>Publicar la extensión BH - API (ya contiene este endpoint desde una versión previa) — este cambio no requiere republicar dependencias ni symbols nuevos, es lógica interna de la página existente.</li>
+<li>No requiere migración de datos: <code>totalFob</code> se calcula en tiempo de lectura.</li>
+<li>Al consumir desde Power Automate / integraciones externas, usar <code>$filter=orderNo eq '&lt;No. Documento&gt;'</code> para acotar resultados — sin ese filtro, <code>totalFob</code> se recalcula fila por fila igual, pero cada fila corresponde a una combinación distinta de origen + documento, por lo que agregarlos por fuera del endpoint puede duplicar montos si un mismo origen aparece en más de un documento en el listado.</li>
+</ol>
+
+<h2>Discrepancias diseño vs. código</h2>
+<p>No se identificó un diseño (<code>docs/diseños/DIS-*.md</code>) específico para este endpoint — la validación y las decisiones de implementación quedaron documentadas directamente como comentario en el código (<code>Pag60120.origenesLP.al</code>, líneas 90-108) y en <code>CLAUDE.md</code>. No hay discrepancia entre lo documentado y lo implementado: se leyó el código fuente y coincide exactamente con la descripción de este documento.</p>
+
+<h2>Historial de cambios</h2>
+<table>
+<tr><th>Fecha</th><th>Autor</th><th>Descripción</th></tr>
+<tr><td>2026-09-03</td><td>Cristhian López</td><td>Documentación inicial del campo calculado <code>totalFob</code> en Origenes LP API (endpoint 60120), agregado y validado contra producción (cotización C03980, 2026-09-02). Corrige en <code>CLAUDE.md</code> la atribución del campo <code>Item."LyL OrigenLP"</code> (80702) de D365LATAM a LyLVariantsExt.</td></tr>
+</table>
+
+</div>
+</body>
+</html>
