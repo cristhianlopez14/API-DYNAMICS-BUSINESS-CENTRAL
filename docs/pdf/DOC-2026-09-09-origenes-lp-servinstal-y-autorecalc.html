@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>DOC-2026-09-09-origenes-lp-servinstal-y-autorecalc</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+  :root {
+    --crema: #F9EDDC;
+    --verde: #152D0C;
+    --arena: #C4956A;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: 'Space Grotesk', 'Segoe UI', Arial, sans-serif;
+    color: #2b2b2b;
+    margin: 0;
+    font-size: 11.5pt;
+    line-height: 1.5;
+  }
+
+  @page {
+    size: A4;
+    margin: 2.2cm 1.8cm 2.4cm 1.8cm;
+    @bottom-center {
+      content: "Página " counter(page) " de " counter(pages);
+      font-family: 'Space Grotesk', Arial, sans-serif;
+      font-size: 9pt;
+      color: var(--verde);
+    }
+  }
+
+  .portada {
+    background: var(--crema);
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 4cm 2.5cm;
+    page-break-after: always;
+  }
+
+  .portada .marca {
+    color: var(--arena);
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    font-size: 11pt;
+    font-weight: 600;
+    margin-bottom: 1.2cm;
+  }
+
+  .portada h1 {
+    color: var(--verde);
+    font-size: 27pt;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0 0 0.6cm 0;
+    max-width: 14cm;
+  }
+
+  .portada .subtitulo {
+    color: #4a4a4a;
+    font-size: 13pt;
+    margin-bottom: 2.2cm;
+    max-width: 13cm;
+  }
+
+  .portada .meta {
+    border-top: 2px solid var(--arena);
+    padding-top: 0.6cm;
+    font-size: 10.5pt;
+    color: var(--verde);
+  }
+
+  .portada .meta div { margin-bottom: 0.15cm; }
+  .portada .meta strong { color: var(--verde); }
+
+  .portada .pie-marca {
+    position: absolute;
+    bottom: 2.5cm;
+    left: 2.5cm;
+    color: var(--verde);
+    font-weight: 600;
+    font-size: 11pt;
+  }
+
+  .contenido {
+    padding: 0 0.2cm;
+  }
+
+  h1, h2, h3 {
+    color: var(--verde);
+    font-weight: 700;
+  }
+
+  h1 { font-size: 18pt; border-bottom: 2px solid var(--arena); padding-bottom: 0.2cm; margin-top: 0.6cm;}
+  h2 { font-size: 14pt; margin-top: 1cm; border-left: 4px solid var(--arena); padding-left: 0.3cm; }
+  h3 { font-size: 12pt; margin-top: 0.7cm; color: var(--verde); }
+
+  p { margin: 0.4cm 0; }
+
+  code {
+    background: #f2ead9;
+    color: #5a3d1f;
+    padding: 0.05cm 0.15cm;
+    border-radius: 3px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 10pt;
+  }
+
+  pre {
+    background: #1e2a17;
+    color: #f2ead9;
+    padding: 0.4cm;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 9.5pt;
+    font-family: 'Consolas', 'Courier New', monospace;
+    page-break-inside: avoid;
+  }
+
+  pre code { background: none; color: inherit; padding: 0; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.4cm 0 0.6cm 0;
+    font-size: 10pt;
+    page-break-inside: avoid;
+  }
+
+  th {
+    background: var(--verde);
+    color: var(--crema);
+    text-align: left;
+    padding: 0.22cm 0.3cm;
+  }
+
+  td {
+    padding: 0.2cm 0.3cm;
+    border-bottom: 1px solid #e3d6bd;
+    vertical-align: top;
+  }
+
+  tr:nth-child(even) td { background: #fbf5ea; }
+
+  blockquote {
+    border-left: 4px solid var(--arena);
+    margin: 0.4cm 0;
+    padding: 0.2cm 0.5cm;
+    background: #fbf5ea;
+    color: #4a4a4a;
+    font-size: 10.5pt;
+  }
+
+  a { color: var(--arena); }
+
+  .seccion { page-break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<div class="portada">
+  <div class="marca">Bodhitrí &mdash; Área de TI</div>
+  <h1>Origenes LP API<br>&mdash; exclusión de SERVINSTAL y recálculo automático al convertir Cotización a Pedido</h1>
+  <div class="subtitulo">Documentación técnica sobre el endpoint <code>/bh/bh/beta/origenesLP</code> y el nuevo <code>codeunit 60126</code> (extensión BH - API)</div>
+  <div class="meta">
+    <div><strong>Versión:</strong> 1.0</div>
+    <div><strong>Fecha:</strong> 2026-09-09</div>
+    <div><strong>Documento:</strong> DOC-2026-09-09-origenes-lp-servinstal-y-autorecalc</div>
+  </div>
+</div>
+
+<div class="contenido">
+
+<h1>Origenes LP API — exclusión de SERVINSTAL y recálculo automático al convertir Cotización a Pedido</h1>
+
+<h2>Resumen ejecutivo</h2>
+<p>Este documento cubre dos correcciones relacionadas sobre el campo calculado <code>totalFob</code> del endpoint <code>/bh/bh/beta/origenesLP</code>, documentado originalmente en <a href="DOC-2026-09-03-origenes-lp.pdf">DOC-2026-09-03-origenes-lp</a>. Ambas fueron encontradas y validadas contra datos reales de producción del mismo flujo de negocio: el costeo FOB por origen de compra que las empresas del grupo con <strong>LyLVariantsExt</strong> usan en sus cotizaciones/pedidos de venta, y que un flujo de Power Automate lee para llevar presupuesto FOB al Proyecto relacionado.</p>
+<ul>
+<li><strong>Cambio 1:</strong> se excluye el ítem <code>SERVINSTAL</code> (Servicio de Instalación) del cálculo de <code>totalFob</code> para el origen <code>SERVICIOS</code>, replicando un comportamiento del "Reporte por Origenes" nativo de LyLVariantsExt que no tiene un campo consultable que lo explique.</li>
+<li><strong>Cambio 2:</strong> se agrega <code>codeunit 60126 "BH LyL Origenes Convert Sync"</code>, que dispara automáticamente el recálculo de precios de LyLVariantsExt al convertir una Cotización de venta en Pedido, para que <code>totalFob</code> quede correcto en el Pedido nuevo sin intervención manual.</li>
+</ul>
+<p>Ninguno de los dos cambios modifica el contrato OData del endpoint (mismos campos, misma entidad) — ambos afectan únicamente el <strong>valor</strong> que <code>totalFob</code> reporta en ciertos escenarios.</p>
+
+<h2>Objetos AL</h2>
+<table>
+<tr><th>Tipo</th><th>ID</th><th>Nombre</th><th>Propósito</th></tr>
+<tr><td>Page (API)</td><td>60120</td><td>Origenes LP API</td><td>Modificado: <code>local procedure GetTotalFob()</code> ahora excluye explícitamente el ítem <code>SERVINSTAL</code> de la suma de <code>totalFob</code>.</td></tr>
+<tr><td>Codeunit</td><td>60126</td><td>BH LyL Origenes Convert Sync</td><td>Nuevo. Event subscriber que dispara <code>CalculateSalesPrice</code> de LyLVariantsExt tras convertir Cotización en Pedido.</td></tr>
+<tr><td>Permission Set</td><td>60100</td><td>BH API - Objects</td><td>Modificado: se agrega <code>codeunit "BH LyL Origenes Convert Sync" = X</code> a la lista de <code>Permissions</code>.</td></tr>
+</table>
+<p>No se crean ni modifican tablas ni tableextensions en esta entrega.</p>
+
+<p><strong>Dependencias externas involucradas (sin modificar):</strong></p>
+<table>
+<tr><th>Objeto</th><th>Extensión</th><th>Uso</th></tr>
+<tr><td><code>Sales Line."LyLSalesPriceCal"</code> (field 80701)</td><td>LyLVariantsExt</td><td>Ya documentado en DOC-2026-09-03; ahora también relevante para entender por qué SERVINSTAL sí tiene datos aunque se excluya.</td></tr>
+<tr><td><code>Item."LyL calculoLP"</code> / <code>LyL ItemVariant.PrecioFOB</code></td><td>LyLVariantsExt</td><td>Consultados en la investigación del Cambio 1 para descartar que fuera un problema de datos.</td></tr>
+<tr><td><code>Codeunit 80701 "LyLUnitPriceCalculation"</code>, procedure <code>CalculateSalesPrice(SalesHeaderNo: Code[20])</code></td><td>LyLVariantsExt</td><td>Invocado por el Cambio 2. Referenciado directo por nombre (dependencia obligatoria en <code>app.json</code>, mismo patrón que las tablas de Multiplicadores LP/Origenes LP).</td></tr>
+<tr><td><code>Codeunit 86 "Sales-Quote to Order"</code>, evento <code>OnAfterOnRun</code></td><td>Microsoft Base Application</td><td>Punto de enganche del Cambio 2.</td></tr>
+<tr><td><code>Report 80701 "LyLOrigenesRep"</code> ("Reporte por Origenes" / "Reporte Costos - Multiplicadores y Origen")</td><td>LyLVariantsExt</td><td>Comportamiento de referencia contra el que se validaron ambos cambios.</td></tr>
+</table>
+
+<h2>Cambio 1: exclusión de SERVINSTAL en el cálculo de totalFob</h2>
+
+<h3>Contexto previo</h3>
+<p>El endpoint <code>origenesLP</code> (page 60120) calcula <code>totalFob</code> sumando <code>Sales Line."LyLSalesPriceCal" × Quantity</code> para cada línea de venta Tipo Artículo cuyo <code>Item."LyL OrigenLP"</code> coincide con el origen consultado (<code>Rec.Nombre</code>). Esta lógica ya estaba documentada y validada contra la cotización C03980 (ver DOC-2026-09-03-origenes-lp.md).</p>
+
+<h3>Hallazgo</h3>
+<p>Validado el 2026-09-07 contra la cotización <strong>C04000</strong>, origen <code>SERVICIOS</code>: el ítem <code>SERVINSTAL</code> (Servicio de Instalación, <code>Type = Service</code>) comparte <code>Item."LyL OrigenLP" = "SERVICIOS"</code> con <code>SERVTRANSP</code> (Servicio de Transporte, también <code>Type = Service</code>), pero el "Reporte por Origenes" nativo de LyLVariantsExt (<code>Report 80701 "LyLOrigenesRep"</code>) <strong>no cuenta</strong> las líneas de <code>SERVINSTAL</code> en el Total Fob de <code>SERVICIOS</code> — solo cuenta <code>SERVTRANSP</code>.</p>
+<p>Se confirmó de forma concluyente borrando la línea de <code>SERVTRANSP</code> del documento: el reporte nativo pasó a dar Total Fob = 0 para <code>SERVICIOS</code>, mientras que las 3 líneas de <code>SERVINSTAL</code> seguían teniendo <code>Sales Line."LyLSalesPriceCal" > 0</code> (valores 11500.01, 9000.01, 7100.01, con cantidades 6, 6 y 7 respectivamente).</p>
+<p>No es un dato corrupto: 2 de las 3 variantes de <code>SERVINSTAL</code> en <code>LyL ItemVariant</code> (campo <code>PrecioFOB</code>) tienen un valor real que coincide exacto con esos montos de <code>LyLSalesPriceCal</code> (11500.01 y 9000.01). La tercera variante (<code>0000011379</code>) no tenía registro en <code>LyL ItemVariant</code> en absoluto — pero eso tampoco explica por qué se excluyen las 3 líneas.</p>
+
+<h3>Comparación exhaustiva</h3>
+<p>Se comparó <code>SERVINSTAL</code> contra <code>SERVTRANSP</code> en todos los campos consultables vía API/RecordRef, sin encontrar ninguno que distinga el caso:</p>
+<table>
+<tr><th>Campo</th><th>SERVINSTAL</th><th>SERVTRANSP</th></tr>
+<tr><td><code>Type</code></td><td>Service</td><td>Service</td></tr>
+<tr><td><code>Item."LyL calculoLP"</code></td><td>Calculado</td><td>Calculado</td></tr>
+<tr><td><code>itemCategoryCode</code></td><td>SERVICIOS</td><td>SERVICIOS</td></tr>
+<tr><td><code>genProdPostingGroup</code></td><td>SERVICIOS</td><td>SERVICIOS</td></tr>
+<tr><td><code>taxGroupCode</code></td><td>V_SERVSGRAVADOS19%</td><td>V_SERVSGRAVADOS19%</td></tr>
+</table>
+
+<h3>Conclusión de negocio</h3>
+<p>FOB (Free On Board) es un costo de importación/logística. La instalación es mano de obra local post-importación, sin costo FOB por definición; el transporte, en cambio, sí es parte del costeo logístico de traer la mercancía. Se asume que la exclusión de <code>SERVINSTAL</code> es intencional en el trigger compilado del reporte nativo de LyLVariantsExt, al cual no se tiene acceso al código fuente.</p>
+
+<h3>Fix aplicado</h3>
+<p>En <code>local procedure GetTotalFob()</code> (<code>Pag60120.origenesLP.al</code>), se agrega una exclusión explícita por número de ítem a la condición del <code>if</code> que suma al acumulador:</p>
+<pre><code>if (ItemOrigenLP = Rec.Nombre) and (SalesLine."No." &lt;&gt; 'SERVINSTAL') then begin
+    ...
+    TotalFobLP += SalesPriceCal * SalesLine.Quantity;
+end;</code></pre>
+<p><strong>Limitación conocida:</strong> no existe otro campo disponible para distinguir el caso de forma genérica, así que el fix es un hardcode por número de ítem. Si en el futuro aparece otro ítem de "instalación" con un número distinto, o si LyLVariantsExt agrega un campo real que sí distinga el caso, este hardcode debe revisarse.</p>
+
+<h3>Validación</h3>
+<p>Tras el fix, se probó contra dos documentos independientes — la cotización <strong>C04000 versión 6</strong> y el pedido de venta <strong>P01414</strong> resultante de convertirla — y los 8 orígenes de cada documento coincidieron exacto contra el "Reporte por Origenes" nativo, incluyendo <code>SERVICIOS</code>.</p>
+
+<h2>Cambio 2: recálculo automático de LyL al convertir Cotización en Pedido</h2>
+
+<h3>Problema de negocio</h3>
+<p>Un flujo de Power Automate lee <code>totalFob</code> del endpoint <code>origenesLP</code> al convertir una Cotización de venta en Pedido, para llevar el presupuesto FOB al Proyecto relacionado. Al convertir Cotización→Pedido en Business Central, el Pedido resultante recibe un número de documento <strong>nuevo</strong> (de la serie de Pedidos; ej. <code>C04000</code> → <code>P01414</code>, no reutiliza el número de la cotización).</p>
+<p>Se validó (2026-09-09, contra ese mismo par C04000/P01414) que <strong>LyLVariantsExt no traslada ni recalcula automáticamente</strong> los registros <code>LyL OrigenLP</code> (tabla 80708) ni el campo <code>Sales Line."LyLSalesPriceCal"</code> para el nuevo número de Pedido: <code>totalFob</code> daba 0 en los 8 orígenes del Pedido nuevo hasta que el usuario corría manualmente la acción <strong>"Calcular Precios de Venta"</strong> de LyLVariantsExt (menú "Ajustes Listas de Precios" de la ficha del Pedido). Esto rompía la automatización del flujo, que no puede depender de un clic manual antes de leer los datos.</p>
+
+<h3>Investigación de causa raíz</h3>
+<p>Se extrajeron y analizaron los símbolos compilados (<code>SymbolReference.json</code>) del paquete <code>.app</code> de LyLVariantsExt (publisher L&amp;L Consultores, sin código fuente disponible) para identificar el codeunit/procedimiento detrás del botón "Calcular Precios de Venta". Ese botón vive en <code>pageextension</code>s sobre las páginas estándar "Sales Order" y "Sales Quote" (<code>Pag-Ext80706.LyLSalesOrderExt.al</code> / <code>Pag-Ext80707.LyLSalesQuoteExt.al</code>), agrupado junto a "Ajustar Multiplicadores" y "Ajustar Origen" bajo el menú "Ajustes Listas de Precios".</p>
+<p>La extensión solo tiene 3 codeunits en total, y el único procedimiento público cuyo nombre coincide con el caption del botón es <code>Codeunit 80701 "LyLUnitPriceCalculation".CalculateSalesPrice(SalesHeaderNo: Code[20])</code>.</p>
+<p>No fue posible confirmar (sin código fuente del trigger del botón) si "Ajustar Multiplicadores"/"Ajustar Origen" llaman procedimientos adicionales no expuestos como públicos. Se decidió implementar la hipótesis más fundamentada (llamar solo a <code>CalculateSalesPrice</code>) y validarla empíricamente contra un documento real antes de darla por buena.</p>
+
+<h3>Fix aplicado</h3>
+<p><code>codeunit 60126 "BH LyL Origenes Convert Sync"</code> se suscribe al evento <code>OnAfterOnRun</code> de <code>Codeunit 86 "Sales-Quote to Order"</code> (Microsoft Base Application), que dispara al final de toda la conversión de Cotización a Pedido, con el Pedido ya insertado, sus líneas ya transferidas, y el parámetro <code>SalesOrderHeader</code> trayendo el número de documento definitivo del Pedido nuevo:</p>
+<pre><code>[EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Quote to Order", OnAfterOnRun, '', false, false)]
+local procedure RecalculateLylOnAfterConvertToOrder(var SalesHeader: Record "Sales Header"; var SalesOrderHeader: Record "Sales Header")
+begin
+    LylUnitPriceCalculation.CalculateSalesPrice(SalesOrderHeader."No.");
+end;</code></pre>
+<p><code>LylUnitPriceCalculation</code> es una variable global <code>Codeunit LyLUnitPriceCalculation</code>, referenciada directo por nombre — mismo patrón usado para las tablas de LyLVariantsExt en Multiplicadores LP/Origenes LP, por tratarse de una dependencia obligatoria declarada en <code>app.json</code>.</p>
+
+<h3>Validación</h3>
+<p>El usuario probó convirtiendo una cotización a pedido <strong>sin tocar ningún botón manual</strong> de LyLVariantsExt y confirmó que funcionó: el endpoint <code>origenesLP</code> quedó con los datos correctos automáticamente tras la conversión.</p>
+<p><strong>Limitación conocida:</strong> no se pudo verificar contra el código fuente de LyLVariantsExt que <code>CalculateSalesPrice</code> sea suficiente en todos los casos — por ejemplo, si "Ajustar Origen" hace algo adicional no cubierto en escenarios aún no probados. Si en el futuro se detecta un Pedido convertido con <code>totalFob</code> incorrecto pese a este subscriber, hay que investigar si hace falta replicar también el efecto de "Ajustar Origen", posiblemente contactando a L&amp;L Consultores (proveedor de LyLVariantsExt) para pedir código fuente o documentación de esos tres botones.</p>
+
+<h2>Endpoint de API</h2>
+<p>No hay cambios al contrato del endpoint <code>origenesLP</code> (mismo <code>EntityName</code>/<code>EntitySetName</code>/campos que en DOC-2026-09-03-origenes-lp.md). Ambos cambios de esta entrega afectan únicamente el <strong>valor</strong> calculado de <code>totalFob</code> en tiempo de lectura:</p>
+<ul>
+<li>Para el origen <code>SERVICIOS</code>, <code>totalFob</code> ya no incluye las líneas de <code>SERVINSTAL</code>.</li>
+<li>Para un Pedido recién convertido desde Cotización, <code>totalFob</code> ahora refleja datos correctos sin requerir una acción manual previa en el cliente BC.</li>
+</ul>
+
+<h2>Permisos requeridos</h2>
+<ul>
+<li>Se agrega <code>codeunit "BH LyL Origenes Convert Sync" = X</code> a <code>permissionset 60100 "BH API - Objects"</code>. Es obligatorio: BC exige permiso <code>Execute</code> explícito sobre codeunits propios para que sus event subscribers corran para usuarios no-SUPER; sin él, la conversión Cotización→Pedido falla con "Su licencia no le concede los siguientes permisos... Execute".</li>
+<li>El Cambio 1 (exclusión de SERVINSTAL) no requiere cambios de permisos — es lógica interna de una página API ya cubierta por los permisos estándar sobre <code>Sales Line</code>/<code>Item</code>.</li>
+<li>Cualquier usuario o cuenta de servicio con permiso para ejecutar la acción estándar "Convertir en pedido" sobre Cotizaciones debe tener asignado (directa o indirectamente) el permission set <code>BH API - Objects</code> para que el recálculo automático no falle.</li>
+</ul>
+
+<h2>Instrucciones de uso / despliegue</h2>
+<ol>
+<li>Publicar la extensión BH - API con la versión actualizada de <code>Per60100.bhApiObjects.al</code> y el nuevo <code>Cod60126.lylOrigenesConvertSync.al</code> — requiere republicar el paquete completo (nuevo objeto codeunit + cambio de permission set), no es solo lógica interna de una página existente.</li>
+<li>Verificar que los usuarios/cuentas de servicio que convierten Cotizaciones en Pedidos tengan asignado el permission set <code>BH API - Objects</code> (o uno que incluya <code>codeunit "BH LyL Origenes Convert Sync" = X</code>).</li>
+<li>No requiere migración de datos ni republicar dependencias (<code>LyLVariantsExt</code> sigue siendo la misma versión ya declarada en <code>app.json</code>).</li>
+<li>Para el flujo de Power Automate que consume <code>totalFob</code> tras convertir Cotización→Pedido: ya no es necesario esperar ni disparar manualmente "Calcular Precios de Venta" antes de leer el endpoint — el recálculo ocurre de forma síncrona dentro de la misma transacción de conversión.</li>
+<li>Al consumir <code>origenesLP</code> para el origen <code>SERVICIOS</code>, tener en cuenta que <code>totalFob</code> excluye intencionalmente <code>SERVINSTAL</code> — no es un dato faltante.</li>
+</ol>
+
+<h2>Discrepancias diseño vs. código</h2>
+<p>No se identificó un diseño (<code>docs/diseños/DIS-*.md</code>) específico para ninguno de los dos cambios — las decisiones de implementación e investigación quedaron documentadas directamente como comentarios en el código (<code>Pag60120.origenesLP.al</code>, comentario sobre <code>GetTotalFob()</code>; <code>Cod60126.lylOrigenesConvertSync.al</code>, comentario de cabecera del codeunit) y reflejadas en <code>CLAUDE.md</code>. No hay discrepancia entre lo documentado aquí y lo implementado: se leyó el código fuente publicado y coincide exactamente con la descripción de este documento.</p>
+<p>Ambos cambios comparten una misma limitación estructural: dependen de comportamiento no documentado de una extensión de terceros (LyLVariantsExt) inferido por comparación empírica de datos y análisis de símbolos compilados, sin acceso a su código fuente. Se señala explícitamente en cada sección para que futuras revisiones sepan qué validar si LyLVariantsExt cambia de versión.</p>
+
+<h2>Historial de cambios</h2>
+<table>
+<tr><th>Fecha</th><th>Autor</th><th>Descripción</th></tr>
+<tr><td>2026-09-09</td><td>Cristhian López</td><td>Documentación de dos correcciones sobre <code>totalFob</code> en Origenes LP API (endpoint 60120): (1) exclusión del ítem <code>SERVINSTAL</code> del cálculo para el origen <code>SERVICIOS</code>, validada contra cotización C04000 y pedido P01414 (2026-09-07/09); (2) nuevo <code>codeunit 60126 "BH LyL Origenes Convert Sync"</code> que dispara <code>CalculateSalesPrice</code> de LyLVariantsExt automáticamente al convertir Cotización en Pedido, agregado también a <code>Per60100.bhApiObjects.al</code>.</td></tr>
+</table>
+
+</div>
+</body>
+</html>

@@ -41,7 +41,7 @@ APIVersion   = beta
 | Project Lines | `/projectLines` | Job Planning Line | |
 | Budget Amounts | `/budgetAmounts` | G/L Budget Entry (agregado) | Solo lectura |
 | Multiplicadores LP | `/multiplicadoresLP` | `LyL Multiplicadores_LP` | Requiere extensión externa `LyLVariantsExt` |
-| Origenes LP | `/origenesLP` | `LyL OrigenLP` | Requiere extensión externa `LyLVariantsExt`. Expone `totalFob`, calculado al vuelo por documento de venta — ver [docs/tecnica/DOC-2026-09-03-origenes-lp.md](docs/tecnica/DOC-2026-09-03-origenes-lp.md) |
+| Origenes LP | `/origenesLP` | `LyL OrigenLP` | Requiere extensión externa `LyLVariantsExt`. Expone `totalFob`, calculado al vuelo por documento de venta — ver [docs/tecnica/DOC-2026-09-03-origenes-lp.md](docs/tecnica/DOC-2026-09-03-origenes-lp.md) y correcciones en [docs/tecnica/DOC-2026-09-09-origenes-lp-servinstal-y-autorecalc.md](docs/tecnica/DOC-2026-09-09-origenes-lp-servinstal-y-autorecalc.md) |
 
 Todos son de lectura/escritura excepto **Budget Amounts**, que es solo lectura.
 
@@ -165,3 +165,4 @@ Documentación técnica detallada por entrega, en `docs/tecnica/` (Markdown) con
 | Fecha | Documento | Tema |
 |---|---|---|
 | 2026-09-03 | [DOC-2026-09-03-origenes-lp](docs/tecnica/DOC-2026-09-03-origenes-lp.md) ([PDF](docs/pdf/DOC-2026-09-03-origenes-lp.pdf)) | Origenes LP API (60120): campo calculado `totalFob` |
+| 2026-09-09 | [DOC-2026-09-09-origenes-lp-servinstal-y-autorecalc](docs/tecnica/DOC-2026-09-09-origenes-lp-servinstal-y-autorecalc.md) ([PDF](docs/pdf/DOC-2026-09-09-origenes-lp-servinstal-y-autorecalc.pdf)) | Origenes LP API (60120): exclusión de SERVINSTAL en `totalFob`; nuevo `codeunit 60126` para recálculo automático de LyL al convertir Cotización en Pedido |
