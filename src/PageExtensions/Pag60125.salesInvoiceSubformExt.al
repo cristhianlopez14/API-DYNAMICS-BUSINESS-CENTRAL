@@ -7,11 +7,12 @@ pageextension 60125 "BH Sales Invoice Subform Ext" extends "Sales Invoice Subfor
     // codeunit "BH Sales Job Planning Mgt." (60123) crea la Job Planning Line oculta
     // correspondiente vía event subscriber -- sin lógica de negocio nueva aquí.
     //
-    // A diferencia de Sales Order Subform (Pag60124, que no tiene estos campos en el
-    // layout base y por eso los agrega con addafter), Sales Invoice Subform YA trae
-    // los controles "Job No."/"Job Task No." en el layout base de Microsoft, pero con
-    // Editable = false y Visible = false -- descubierto al compilar (AL0155, campo
-    // duplicado) al intentar agregarlos como addafter. Aquí solo se habilitan.
+    // Sales Invoice Subform YA trae los controles "Job No."/"Job Task No." en el layout
+    // base de Microsoft, pero con Editable = false y Visible = false -- descubierto al
+    // compilar (AL0155, campo duplicado) al intentar agregarlos como addafter (como se
+    // hacía en el ya eliminado Pag60124.salesOrderSubformExt.al, que sí necesitaba
+    // addafter porque Sales Order Subform no trae estos controles de fábrica). Aquí
+    // solo se habilitan los ya existentes.
     layout
     {
         modify("Job No.")

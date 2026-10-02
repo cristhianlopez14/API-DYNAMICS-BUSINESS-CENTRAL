@@ -1,12 +1,12 @@
 {
-    "version": "0.2.0",
+    "version": "0.2.1",
     "configurations": [
         {
             "name": "Microsoft cloud Sandbox",
             "request": "launch",
             "type": "al",
             "environmentType": "Sandbox",
-            "environmentName": "SandboxBH",
+            "environmentName": "SandboxBHv2",
             "startupObjectId": 22,
             "startupObjectType": "Page",
             "breakOnError": "All",
@@ -16,11 +16,14 @@
             "schemaUpdateMode": "ForceSync"
         },
         {
+
+
+            
             "name": "AL: Generated Download Symbols request",
             "request": "launch",
             "type": "al",
             "environmentType": "Sandbox",
-            "environmentName": "SandboxBH",
+            "environmentName": "SandboxBHv2",
             "tenant": "10657a47-53a7-4493-b90b-033cc0505242"
         },
         {
@@ -28,8 +31,8 @@
             "request": "snapshotInitialize",
             "type": "al",
             "environmentType": "Sandbox",
-            "environmentName": "SandboxBH",
-            "sessionId": 47647,
+            "environmentName": "SandboxBHv2",
+            "sessionId": 66093,
             "breakOnNext": "WebClient",
             "executionContext": "DebugAndProfile",
             "tenant": "10657a47-53a7-4493-b90b-033cc0505242"

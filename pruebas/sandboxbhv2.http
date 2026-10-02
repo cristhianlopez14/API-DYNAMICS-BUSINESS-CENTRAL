@@ -1,0 +1,152 @@
+### =====================================================================
+### Pruebas BH-API en SandboxBHv2 (BC 28.4)
+### Requiere la extensión "REST Client" de VS Code (humao.rest-client)
+###
+### 1) Obtener token (PowerShell):
+###    az account get-access-token --resource https://api.businesscentral.dynamics.com --query accessToken -o tsv
+###    y pegarlo en @token (dura ~1 hora)
+### 2) Ejecutar "GET companies" y copiar el id de la compañía a @companyId
+### 3) Ejecutar cada request con "Send Request" y anotar el resultado en la tabla del final
+### =====================================================================
+
+@tenant = 10657a47-53a7-4493-b90b-033cc0505242
+@env = SandboxBHv2
+@token = PEGAR_TOKEN_AQUI
+@companyId = PEGAR_COMPANY_ID_AQUI
+
+@base = https://api.businesscentral.dynamics.com/v2.0/{{tenant}}/{{env}}/api/bh/bh/beta
+@co = {{base}}/companies({{companyId}})
+
+### 0. Compañías (sirve para validar token y que la extensión esté publicada)
+GET {{base}}/companies
+Authorization: Bearer {{token}}
+
+### ---------------------------------------------------------------------
+### LECTURA — un registro por endpoint (debe responder 200 y campos poblados)
+### ---------------------------------------------------------------------
+
+### 60103 Vendors
+GET {{co}}/vendors?$top=1
+Authorization: Bearer {{token}}
+
+### 60104 Sales Invoice Lines
+GET {{co}}/salesInvoiceLines?$top=1
+Authorization: Bearer {{token}}
+
+### 60105 Sales Invoices
+GET {{co}}/salesInvoices?$top=1
+Authorization: Bearer {{token}}
+
+### 60106 Productos (campo Origen vía RecordRef 80702)
+GET {{co}}/productos?$top=1
+Authorization: Bearer {{token}}
+
+### 60107 BOM Components
+GET {{co}}/bomComponents?$top=1
+Authorization: Bearer {{token}}
+
+### 60108 Opportunities
+GET {{co}}/opportunities?$top=1
+Authorization: Bearer {{token}}
+
+### 60109 Sales Quotes
+GET {{co}}/salesQuotes?$top=1
+Authorization: Bearer {{token}}
+
+### 60110 Sales Orders
+GET {{co}}/salesOrders?$top=1
+Authorization: Bearer {{token}}
+
+### 60111 Customers
+GET {{co}}/customers?$top=1
+Authorization: Bearer {{token}}
+
+### 60112 Salespersons
+GET {{co}}/salespersonPurchasers?$top=1
+Authorization: Bearer {{token}}
+
+### 60113 Payment Journal Lines
+GET {{co}}/paymentJournalLines?$top=1
+Authorization: Bearer {{token}}
+
+### 60114 Project Lines
+GET {{co}}/projectLines?$top=1
+Authorization: Bearer {{token}}
+
+### 60115 Purchase Invoices (buffer temporal: borradores + contabilizadas)
+GET {{co}}/purchaseInvoices?$top=5
+Authorization: Bearer {{token}}
+
+### 60116 No. Series Lines
+GET {{co}}/noSeriesLines?$top=1
+Authorization: Bearer {{token}}
+
+### 60117 Purchase Invoice Lines (solo borradores)
+GET {{co}}/purchaseInvoiceLines?$top=1
+Authorization: Bearer {{token}}
+
+### 60118 Budget Amounts (agregado; solo lectura). Cambiar el nombre del presupuesto
+GET {{co}}/budgetAmounts?$filter=budgetName eq '2026'
+Authorization: Bearer {{token}}
+
+### 60119 Multiplicadores LP (depende de LyLVariantsExt)
+GET {{co}}/multiplicadoresLP?$top=1
+Authorization: Bearer {{token}}
+
+### 60120 Origenes LP (incluye totalFob calculado; probar con un documento real)
+GET {{co}}/origenesLP?$filter=orderNo eq 'C03980'
+Authorization: Bearer {{token}}
+
+### 60122 Projects
+GET {{co}}/projects?$top=1
+Authorization: Bearer {{token}}
+
+### ---------------------------------------------------------------------
+### ESCRITURA — usar datos de prueba; reemplazar ids/valores
+### ---------------------------------------------------------------------
+
+### Vendors: POST de prueba (ajustar campos a tu esquema)
+# POST {{co}}/vendors
+# Authorization: Bearer {{token}}
+# Content-Type: application/json
+#
+# { "displayName": "ZZ PRUEBA V28.4" }
+
+### Projects: acción bound copyProjectTasks (reemplazar ids)
+# POST {{co}}/projects(ID_PROYECTO_DESTINO)/Microsoft.NAV.copyProjectTasks
+# Authorization: Bearer {{token}}
+# Content-Type: application/json
+#
+# { "sourceProjectNo": "PXXXX", "copyPlanningLines": false, "copyQuantity": false, "copyDimensions": true }
+
+### Purchase Invoices: PATCH sobre factura contabilizada debe fallar con Error() (esperado)
+# PATCH {{co}}/purchaseInvoices(ID_CONTABILIZADA)
+# Authorization: Bearer {{token}}
+# If-Match: *
+# Content-Type: application/json
+#
+# { "vendorInvoiceNumber": "X" }
+
+### ---------------------------------------------------------------------
+### REGISTRO DE RESULTADOS (llenar a mano)
+### Endpoint                | Status | Obs
+### vendors                 |        |
+### salesInvoiceLines       |        |
+### salesInvoices           |        |
+### productos               |        |
+### bomComponents           |        |
+### opportunities           |        |
+### salesQuotes             |        |
+### salesOrders             |        |
+### customers               |        |
+### salespersonPurchasers   |        |
+### paymentJournalLines     |        |
+### projectLines            |        |
+### purchaseInvoices        |        |
+### noSeriesLines           |        |
+### purchaseInvoiceLines    |        |
+### budgetAmounts           |        |
+### multiplicadoresLP       |        |
+### origenesLP              |        |
+### projects                |        |
+### ---------------------------------------------------------------------
