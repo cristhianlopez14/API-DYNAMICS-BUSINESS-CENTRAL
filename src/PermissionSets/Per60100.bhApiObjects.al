@@ -10,7 +10,9 @@ permissionset 60100 "BH API - Objects"
                   table "BH Budget GL Account" = X,
                   page "BH Budget GL Accounts" = X,
                   codeunit "BH Sales Job Planning Mgt." = X,
-                  codeunit "BH LyL Origenes Convert Sync" = X;
+                  codeunit "BH LyL Origenes Convert Sync" = X,
+                  codeunit "BH Posted CUFE Sync" = X,
+                  codeunit "BH Purchase Job No Consumption" = X;
     // Nota (review 2026-09-01, vigente tras el recorte de alcance del 2026-09-14 que eliminó
     // pageextension 60124): tableextension 60123 ("BH Job Planning Line Ext") y
     // pageextension 60125 no admiten entrada propia en un permission set -- el compilador

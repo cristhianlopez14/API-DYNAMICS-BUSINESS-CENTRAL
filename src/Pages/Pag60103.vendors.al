@@ -39,6 +39,10 @@ page 60103 Vendor
                 {
                     Caption = 'Name';
                 }
+                field(alias; Rec."Search Name")
+                {
+                    Caption = 'Alias Name';
+                }
 
                 field(address; Rec.Address)
                 {

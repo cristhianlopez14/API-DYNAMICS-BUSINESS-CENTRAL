@@ -1,0 +1,70 @@
+### =====================================================================
+### Fase A (causacion): bhPurchaseInvoices + copyFromOrder  -- SandboxBHv2
+### Requiere la extension "REST Client" de VS Code (humao.rest-client)
+### Token: az account get-access-token --resource https://api.businesscentral.dynamics.com --query accessToken -o tsv
+### Ejecutar en orden. Anotar el resultado de cada paso.
+### =====================================================================
+
+@tenant = 10657a47-53a7-4493-b90b-033cc0505242
+@env = SandboxBHv2
+@token = PEGAR_TOKEN_AQUI
+@companyId = PEGAR_COMPANY_ID_AQUI
+@vendorNo = PEGAR_PROVEEDOR_CON_PEDIDO
+@orderNo = PEGAR_PEDIDO_ABIERTO_O_LIBERADO_SIN_FACTURAR
+@invoiceId = PEGAR_ID_DE_LA_FACTURA_CREADA_EN_PASO_2
+
+@base = https://api.businesscentral.dynamics.com/v2.0/{{tenant}}/{{env}}/api/bh/causacion/v1.0
+@co = {{base}}/companies({{companyId}})
+
+### 1. Compañias (valida token y que la extension este publicada)
+GET {{base}}/companies
+Authorization: Bearer {{token}}
+
+### 2. Crear factura borrador. Copiar "id" del resultado a @invoiceId
+POST {{co}}/bhPurchaseInvoices
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "vendorNumber": "{{vendorNo}}",
+  "vendorInvoiceNumber": "PRUEBA-A-001",
+  "cufe": "PRUEBA-CUFE-0000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+  "invoiceDate": "2026-10-13",
+  "dueDate": "2026-11-12"
+}
+
+### 3. Leer la factura (comprobar fechas, CUFE, proveedor)
+GET {{co}}/bhPurchaseInvoices({{invoiceId}})
+Authorization: Bearer {{token}}
+
+### 4. Copiar el pedido. Esperado: 200 con linesCopied y totales
+POST {{co}}/bhPurchaseInvoices({{invoiceId}})/Microsoft.NAV.copyFromOrder
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "orderNo": "{{orderNo}}" }
+
+### 5. Idempotencia. Repetir el paso 4. Esperado: error "ya tiene lineas"
+POST {{co}}/bhPurchaseInvoices({{invoiceId}})/Microsoft.NAV.copyFromOrder
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "orderNo": "{{orderNo}}" }
+
+### 6. Pedido inexistente (usar una factura SIN lineas). Esperado: error "no existe"
+POST {{co}}/bhPurchaseInvoices({{invoiceId}})/Microsoft.NAV.copyFromOrder
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "orderNo": "NOEXISTE-BH" }
+
+### 7. Vendor Invoice No. duplicado. Crear otra factura del mismo proveedor con el mismo numero.
+### Esperado: error "Ya existe un borrador de factura..."
+POST {{co}}/bhPurchaseInvoices
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "vendorNumber": "{{vendorNo}}",
+  "vendorInvoiceNumber": "PRUEBA-A-001"
+}
